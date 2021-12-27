@@ -89,6 +89,24 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/AlignmentSkill.js</br>
 </br>
 </br>
 
+データベースのスキルタイプから連携スキルとするスキルタイプの設定を行います。</br>
+ここで設定したスキルタイプ名がスキル項目名となります。</br>
+
+![Image5](/AlignmentSkill/image/image5.jpg)</br>
+
+</br>
+</br>
+</br>
+
+データベースのスキルから連携スキルとするスキルの設定を行います。</br>
+スキルを設定する際のスキルタイプは連携スキルとして設定したスキルタイプを設定します</br>
+
+![Image6](/AlignmentSkill/image/image6.jpg)</br>
+
+</br>
+</br>
+</br>
+
 連携スキルは、「連携スキルプラグイン」で設定した必要なスキルを習得すると自動で習得します。</br>
 
 ![Image1](/AlignmentSkill/image/image1.jpg)</br>
