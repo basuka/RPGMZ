@@ -4,7 +4,7 @@
 連携スキルは一度設定すればその後の再設定は不要です。</br>
 
 【連携スキルプラグイン】</br>
-https://raw.githubusercontent.com/basuka/RPGMZ/main/AlignmentSkill.js</br>
+https://raw.githubusercontent.com/basuka/RPGMZ/main/AlignmentSkill/AlignmentSkill.js</br>
 
 
 連携スキルの設定では、ダメージ計算時でアクターを指定することが出来ます。</br>
