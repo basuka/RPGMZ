@@ -23,18 +23,18 @@
   Game_Actor.prototype.levelUp = function() {
     this._level++;
 
-    // 取得対象スキル一覧
+    // 習得対象スキル一覧
     const learnSkills = [];
 
     for (const learning of this.currentClass().learnings) {
         if (learning.level === this._level && !this.isLearnedSkill(learning.skillId)) {
-            // 取得レベル且つ対象のスキルが未習得の場合、取得対象スキル一覧に習得スキル情報を追加
+            // 習得レベル且つ対象のスキルが未習得の場合、習得対象スキル一覧に習得スキル情報を追加
             learnSkills.push(learning);
         }
     }
 
     if (learnSkills.length) {
-      // 取得対象スキル一覧の中からランダムで１つスキル情報を取得
+      // 習得対象スキル一覧の中からランダムで１つスキル情報を取得
       const learnSkill = learnSkills[Math.floor( Math.random() * learnSkills.length )];
 
       // 取得したスキルを習得
