@@ -306,7 +306,6 @@ $alignmentSkill = null;
         const loadSkills = this._data[stypeId];
         for (const loadSkill of loadSkills) {
            if (!this.isDummyData(loadSkill)) {
-             console.log(loadSkill);
              $dataSkills[loadSkill.id] = loadSkill;
            }
         }
