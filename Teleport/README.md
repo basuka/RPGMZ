@@ -125,7 +125,7 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 
 </br>
 
-・転移先マップが現在のマップの場合はテレポートを設定しているマップに転移</br>
+・転移先マップが現在のマップの場合はテレポート情報を設定しているマップに転移します。</br>
 ![Image7](/Teleport/image/image7.jpg) ![Image6](/Teleport/image/image6.jpg)</br>
 
 </br>
@@ -134,10 +134,28 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 
 </br>
 
-・転移先マップが移動先のマップの場合は場所移動で設定している移動先マップに転移</br>
+・転移先マップが移動先のマップの場合は場所移動で設定している移動先マップに転移します。</br>
 ![Image10](/Teleport/image/image10.jpg) ![Image11](/Teleport/image/image11.jpg)</br>
 
 </br>
 
 ![Image8](/Teleport/image/image8.jpg)　　　　![Image12](/Teleport/image/image12.jpg)</br>
 
+</br>
+
+・転移先マップが直接指定の場合は指定したマップ番号のマップに転移します。</br>
+
+</br>
+</br>
+</br>
+
+■【転移先名の種類】</br>
+テレポート使用時に表示される転移先名の種類を設定します。</br>
+
+</br>
+
+・表示させる転移先名をマップデータの名前か表示名か設定します。</br>
+　入力を選択した場合は転移先名を直接設定することが出来ます。</br>
+![Image13](/Teleport/image/image13.jpg) ![Image14](/Teleport/image/image14.jpg)</br>
+</br>
+![Image15](/Teleport/image/image15.jpg) ![Image5](/Teleport/image/image5.jpg)</br>
