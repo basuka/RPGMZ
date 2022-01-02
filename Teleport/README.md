@@ -143,7 +143,22 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 
 </br>
 
-・転移先マップが直接指定の場合は指定したマップ番号のマップに転移します。</br>
+・転移先マップが直接指定の場合は指定したマップIDのマップに転移します。</br>
+　マップIDは「data/MapInfos.json」ファイルで調べることが出来ます。</br>
+ 
+ </br>
+ 
+ ![Image16](/Teleport/image/image16.jpg) ![Image17](/Teleport/image/image17.jpg)</br>
+ 
+ ※MapInfos.jsonファイルが壊れると作成中のゲームに影響が出るので、読み取り専用で開くかバックアップを取ることをお勧めします。</br>
+ 
+</br>
+</br>
+</br>
+
+■【転移先マップID】</br>
+転移先にするマップIDを設定します。</br>
+この項目は【転移先マップの種類】で「直接指定」を選択した場合、有効になります(必須)。</br>
 
 </br>
 </br>
@@ -159,3 +174,33 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 ![Image13](/Teleport/image/image13.jpg) ![Image14](/Teleport/image/image14.jpg)</br>
 </br>
 ![Image15](/Teleport/image/image15.jpg) ![Image5](/Teleport/image/image5.jpg)</br>
+
+</br>
+</br>
+</br>
+
+■【転移先名】</br>
+転移先名の設定を行います。</br>
+ここで入力された転移先名が転移先名の一覧に表示されます。</br>
+この項目は【転移先名の種類】で「入力」を選択した場合、有効になります(必須)。</br>
+
+</br>
+</br>
+</br>
+
+■【転移先マップ名の種類】</br>
+表示させる転移先名を移動先のマップ名か現在のマップ名か設定します。</br>
+この項目は【転移先名の種類】で「入力」を選択した場合、無効になります。</br>
+
+</br>
+
+・移動先のマップ名を選択した場合は、場所移動イベントで設定した移動先のマップ名が設定されます。</br>
+
+</br>
+
+![Image18](/Teleport/image/image18.jpg) ![Image19](/Teleport/image/image19.jpg)</br>
+
+</br>
+![Image20](/Teleport/image/image20.jpg)</br> ![Image15](/Teleport/image/image15.jpg) ![Image5](/Teleport/image/image5.jpg)
+
+
