@@ -454,7 +454,7 @@ $teleport = null;
       teleportX = this.calcOffsetX(inputTeleportData, $gamePlayer.x);
 
       // テレポートに登録するY座標の設定
-      teleportY = this.calcOffsetY(inputTeleportData, gamePlayer.y);
+      teleportY = this.calcOffsetY(inputTeleportData, $gamePlayer.y);
     }
 
     const teleportData = {no:this.getNo(inputTeleportData), teleportMapId:teleportMapId, registMapId:registMapId, registMapName:registMapName, teleportX:teleportX, teleportY:teleportY};
