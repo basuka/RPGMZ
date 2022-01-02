@@ -148,7 +148,8 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
  
  </br>
  
- ![Image16](/Teleport/image/image16.jpg) ![Image17](/Teleport/image/image17.jpg)</br>
+ ![Image16](/Teleport/image/image16.jpg)</br>
+ ![Image17](/Teleport/image/image17.jpg)</br>
  
  ※MapInfos.jsonファイルが壊れると作成中のゲームに影響が出るので、読み取り専用で開くかバックアップを取ることをお勧めします。</br>
  
@@ -198,9 +199,34 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 
 </br>
 
-![Image18](/Teleport/image/image18.jpg) ![Image19](/Teleport/image/image19.jpg)</br>
+<table>
+  <tr>
+    <td rowspan=2><img src="/Teleport/image/image18.jpg" alt="Image18"></td>
+    <td><img src="/Teleport/image/image20.jpg" alt="Image20"></td>
+  </tr>
+   <tr>
+    <td><img src="/Teleport/image/image19.jpg" alt="Image19"></td>
+  </tr>
+</table>
+
+![Image15](/Teleport/image/image15.jpg) ![Image5](/Teleport/image/image5.jpg)</br>
 
 </br>
-![Image20](/Teleport/image/image20.jpg)</br> ![Image15](/Teleport/image/image15.jpg) ![Image5](/Teleport/image/image5.jpg)
+</br>
+</br>
+
+・現在のマップ名を選択した場合は、テレポート情報の設定を行っている現在のマップ名が設定されます。</br>
+
+</br>
+
+<table>
+  <tr>
+    <td rowspan=2><img src="/Teleport/image/image21.jpg" alt="Image21"></td>
+    <td><img src="/Teleport/image/image23.jpg" alt="Image23"></td>
+  </tr>
+   <tr>
+    <td><img src="/Teleport/image/image22.jpg" alt="Image22"></td>
+  </tr>
+</table>
 
 
