@@ -173,7 +173,9 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 ・表示させる転移先名をマップデータの名前か表示名か設定します。</br>
 　入力を選択した場合は転移先名を直接設定することが出来ます。</br>
 ![Image13](/Teleport/image/image13.jpg) ![Image14](/Teleport/image/image14.jpg)</br>
+
 </br>
+
 ![Image15](/Teleport/image/image15.jpg) ![Image5](/Teleport/image/image5.jpg)</br>
 
 </br>
@@ -191,7 +193,8 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 
 ■【転移先マップ名の種類】</br>
 表示させる転移先名を移動先のマップ名か現在のマップ名か設定します。</br>
-この項目は【転移先名の種類】で「入力」を選択した場合、無効になります。</br>
+この項目は【転移先マップの種類】で「現在のマップ」を選択した場合、有効になります。</br>
+ただし、【転移先名の種類】で「入力」を選択した場合は無効になります。</br>
 
 </br>
 
@@ -229,4 +232,117 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
   </tr>
 </table>
 
+![Image24](/Teleport/image/image24.jpg) ![Image25](/Teleport/image/image25.jpg)</br>
 
+</br>
+</br>
+</br>
+
+■【X軸の調整タイプ】</br>
+テレポートで転移する転移先のX軸の調整設定を行います。</br>
+
+・「なし」を選択した場合、調整は行わず基準座標(※1)に転移します。</br>
+![Image26](/Teleport/image/image26.jpg) ![Image27](/Teleport/image/image27.jpg)</br>
+
+</br>
+
+![Image8](/Teleport/image/image8.jpg) ![Image9](/Teleport/image/image9.jpg)</br>
+
+</br>
+</br>
+
+・「右に調整」を選択した場合、基準座標(※1)から右方向に転移場所を調整します。</br>
+![Image28](/Teleport/image/image28.jpg) ![Image29](/Teleport/image/image29.jpg)</br>
+
+</br>
+
+![Image8](/Teleport/image/image8.jpg) ![Image30](/Teleport/image/image30.jpg)</br>
+
+</br>
+
+「左に調整」を選択した場合は、基準座標(※1)から左方向に転移場所を調整します。</br>
+また、「直接指定」を選択した場合は、指定したX座標に転移するようになります。</br>
+
+</br>
+</br>
+</br>
+
+■【X軸の調整】</br>
+転移先X座標の調整数を設定します。</br>
+【X軸の調整タイプ】で「直接指定」を選択した場合は、ここで入力された値が転移先のX座標に設定されます。</br>
+【転移先マップの種類】で「直接指定」を選択した場合も同様の設定になります。</br>
+
+</br>
+
+調整数を1で設定した場合、転移先のX座標を基準座標(※1)から１つずらします。</br>
+![Image31](/Teleport/image/image31.jpg)</br>
+
+</br>
+
+![Image8](/Teleport/image/image8.jpg) ![Image30](/Teleport/image/image30.jpg)</br>
+
+</br>
+</br>
+</br>
+
+■【Y軸の調整タイプ】</br>
+テレポートで転移する転移先のY軸の調整設定を行います。</br>
+
+・「なし」を選択した場合、調整は行わず基準座標(※1)に転移します。</br>
+![Image32](/Teleport/image/image32.jpg) ![Image33](/Teleport/image/image33.jpg)</br>
+
+</br>
+
+![Image8](/Teleport/image/image8.jpg) ![Image9](/Teleport/image/image9.jpg)</br>
+
+</br>
+</br>
+
+・「上に調整」を選択した場合、基準座標(※1)から上方向に転移場所を調整します。</br>
+![Image34](/Teleport/image/image34.jpg) ![Image35](/Teleport/image/image35.jpg)</br>
+
+</br>
+
+![Image8](/Teleport/image/image8.jpg) ![Image36](/Teleport/image/image36.jpg)</br>
+
+</br>
+
+「下に調整」を選択した場合は、基準座標(※1)から下方向に転移場所を調整します。</br>
+また、「直接指定」を選択した場合は、指定したY座標に転移するようになります。</br>
+
+</br>
+</br>
+</br>
+
+
+■【Y軸の調整】</br>
+転移先Y座標の調整数を設定します。</br>
+【Y軸の調整タイプ】で「直接指定」を選択した場合は、ここで入力された値が転移先のY座標に設定されます。</br>
+【転移先マップの種類】で「直接指定」を選択した場合も同様の設定になります。</br>
+
+</br>
+
+調整数を1で設定した場合、転移先のY座標を基準座標(※1)から１つずらします。</br>
+![Image37](/Teleport/image/image37.jpg)</br>
+
+</br>
+
+![Image8](/Teleport/image/image8.jpg) ![Image36](/Teleport/image/image36.jpg)</br>
+
+</br>
+
+※1)基準座標</br>
+基準座標は【転移先マップの種類】の選択により異なります。</br>
+</br>
+・【転移先マップの種類】が「現在のマップ」の場合</br>
+　　テレポートの設定を行っているイベントの座標が基準座標になります。</br>
+
+</br>
+
+・【転移先マップの種類】が「移動先のマップ」の場合</br>
+　　場所移動イベントで設定している座標が基準座標になります。</br>
+
+</br>
+
+・【転移先マップの種類】が「直接指定」の場合</br>
+　　転移先を直接指定するため「直接指定」の場合、基準座標はありません。</br>
