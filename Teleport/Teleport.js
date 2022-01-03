@@ -1203,8 +1203,12 @@ $teleport = null;
 
     for(const name in contents) {
       if (contents[name].constructor.name === "Object" && contents[name]["@"]) {
-        const obj = eval(contents[name]["@"]);
-        Object.setPrototypeOf(contents[name], obj.prototype);
+        try {
+          const obj = eval(contents[name]["@"]);
+          Object.setPrototypeOf(contents[name], obj.prototype);
+        } catch(e) {
+          //
+        }
       }
     } 
 
