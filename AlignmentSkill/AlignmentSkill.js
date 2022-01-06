@@ -1306,7 +1306,7 @@ $alignmentSkill = null;
     const subject = this.subject();
     const action = subject._actions[0];
 
-    if (subject.isActor() && action._item._dataClass === "skill") {
+    if (action && subject.isActor() && action._item._dataClass === "skill") {
       const skillId = action._item._itemId;
       const skill = $dataSkills[skillId];
       if (skill.alignmentFlag) {
