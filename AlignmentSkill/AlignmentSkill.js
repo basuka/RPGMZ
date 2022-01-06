@@ -444,7 +444,7 @@ $alignmentSkill = null;
   // ダミーデータかの確認を行う
   //-----------------------------------------------------------------------------
   Alignment_Skill.prototype.isDummyData = function (skill) {
-    return skill.id === -1;
+    return skill && skill.id === -1;
   }
 
   //-----------------------------------------------------------------------------
@@ -568,7 +568,7 @@ $alignmentSkill = null;
   const _Window_SkillList_IsEnabled =
       Window_SkillList.prototype.isEnabled;
   Window_SkillList.prototype.isEnabled = function(item) {
-    if (item.alignmentFlag) {
+    if (item && item.alignmentFlag) {
       return $alignmentSkill.isEnabled(item);
     } else {
       // 再定義前のWindow_SkillList.prototype.isEnabled関数を呼び出し
