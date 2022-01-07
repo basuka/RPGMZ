@@ -512,8 +512,8 @@ $skillPoint = null;
      return {0:"スキルポイント",
              1:"SP",
              "obtainSpSkill":"%1は%2を覚えた！",
-             "spPointMsg":"スキルポイント",
-             "nextSkillMsg":"あと　%1"
+             "spPointMsg":"必要スキルポイント",
+             "nextSkillMsg":"習得まであと　%1"
      };
   }
 
