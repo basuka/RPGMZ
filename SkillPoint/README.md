@@ -44,6 +44,8 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/SkillPoint/SkillPoint.js</br
 　　●【獲得スキルポイント】</br>
 　　【敵グループ】で設定した敵グループから獲得できるスキルポイントの設定を行います。</br>
 </br>
+![Image4](/SkillPoint/image/image4.png)</br>
+</br>
 </br>
 
 <B>アクタースキルポイントの設定</B></br>
