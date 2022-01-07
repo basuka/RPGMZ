@@ -96,8 +96,8 @@
  *
  * @arg actorSkillPoints
  * @type struct<actorSkillPoints>[]
- * @text 獲得スキルポイントの設定
- * @desc 戦闘勝利時に獲得するスキルポイントを設定します。
+ * @text アクタースキルポイント
+ * @desc アクターが習得するスキルと、習得に必要なスキルポイントを設定します。
  *
  *
  * @command setLearnedSkillLevel
