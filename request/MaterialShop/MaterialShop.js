@@ -521,7 +521,7 @@ $teleport = null;
     $gameParty.gainItem(this._item, number);
     for (const material of materials[this._item.id].materialItemInfos) {
       const materialItem = $dataItems[material.materialId];
-      $gameParty.loseItem(materialItem, number);
+      $gameParty.loseItem(materialItem, number * material.quantity);
     }
   };
 
