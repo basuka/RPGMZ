@@ -6,7 +6,7 @@
  * @plugindesc 素材付きショップ機能を設定します。
  * @author Basu
  *
- * @help Teleport.js
+ * @help MaterialShop.js
  *
  * このプラグインは、素材付きショップコマンドを提供します。
  *
