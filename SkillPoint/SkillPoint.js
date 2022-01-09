@@ -5,6 +5,7 @@
  * @target MZ
  * @plugindesc スキルポイントを設定します。
  * @author Basu
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/SkillPoint/SkillPoint.js
  *
  * @help SkillPoint.js
  *
@@ -80,25 +81,76 @@
  *
  *=====================================================================================================================================================
  *
- * @command setGainSkillPoint
- * @text 獲得スキルポイントの設定
- * @desc 戦闘勝利時に獲得できるスキルポイントを設定します。
- *
- * @arg gainSkillPoints
+ * @param gainSkillPoints
  * @type struct<gainSkillPoints>[]
  * @text 獲得スキルポイント
+ * @parent setGainSkillPoint
  * @desc 獲得スキルポイントを設定します。
  *
- *
- * @command setActorSkillPoint
- * @text アクタースキルポイントの設定
- * @desc スキル習得に必要なスキルポイントなどアクタースキルポイントを設定します。
- *
- * @arg actorSkillPoints
+ * @param actorSkillPoints
  * @type struct<actorSkillPoints>[]
  * @text アクタースキルポイント
  * @desc アクターが習得するスキルと、習得に必要なスキルポイントを設定します。
  *
+ * @param option
+ * @text オプションの設定
+ * @desc スキルポイントに関するオプションを設定します。
+ *
+ * @param displayNextSkill
+ * @text 次のスキルを表示
+ * @type boolean
+ * @on 表示する
+ * @off 表示しない
+ * @default true
+ * @parent option
+ * @desc メニュー画面で次に習得するスキルの表示の有無を設定します。
+ *
+ * @param carrySkillPoint
+ * @text スキルポイントの繰り越し
+ * @type boolean
+ * @on 繰り越す
+ * @off 繰り越さない
+ * @default false
+ * @parent option
+ * @desc 次に習得するスキルが無い場合、余剰分のスキルポイントを繰り越して保持するか設定します。
+ *
+ * @param outMemberGain
+ * @text パーティーメンバー外の取得
+ * @type boolean
+ * @on 取得する
+ * @off 取得しない
+ * @default false
+ * @parent option
+ * @desc パーティーメンバー外のメンバーもスキルポイントを取得するか設定します。
+ *
+ * @param gainSpType
+ * @text スキルポイントの取得タイプ
+ * @type select
+ * @option 習得スキル有り
+ * @value 0
+ * @option 習得スキル無し
+ * @value 1
+ * @default 0
+ * @parent option
+ * @desc 次に習得できるスキルの有無によりスキルポイントを取得するか設定します。(スキルポイントを繰り越す場合有効)
+ *
+ * @param skillPoint
+ * @text スキルポイント
+ * @type text
+ * @default スキルポイント
+ * @desc スキルポイントのパラメータ名
+ *
+ * @param skillPointA
+ * @text スキルポイント(略)
+ * @type text
+ * @default SP
+ * @desc スキルポイントのパラメータ名(略)
+ *
+ * @param obtainSpSkill
+ * @text スキル習得メッセージ
+ * @type text
+ * @default %1は%2を覚えた！
+ * @desc スキル習得のメッセージ
  *
  * @command setLearnedSkillLevel
  * @text 習得可能スキルレベルの設定
@@ -128,45 +180,6 @@
  * @type actor[]
  * @desc スキルレベルを設定するアクターを設定します。
  *       対象アクターを「指定アクター」に設定している場合有効です。
- *
- *
- * @command setOption
- * @text オプションの設定
- * @desc スキルポイントに関するオプションを設定します。
- *
- * @arg displayNextSkill
- * @text 次のスキルを表示
- * @type boolean
- * @on 表示する
- * @off 表示しない
- * @default true
- * @desc メニュー画面で次に習得するスキルの表示の有無を設定します。
- *
- * @arg carrySkillPoint
- * @text スキルポイントの繰り越し
- * @type boolean
- * @on 繰り越す
- * @off 繰り越さない
- * @default false
- * @desc 次に習得するスキルが無い場合、余剰分のスキルポイントを繰り越して保持するか設定します。
- *
- * @arg outMemberGain
- * @text パーティーメンバー外の取得
- * @type boolean
- * @on 取得する
- * @off 取得しない
- * @default false
- * @desc パーティーメンバー外のメンバーもスキルポイントを取得するか設定します。
- *
- * @arg gainSpType
- * @text スキルポイントの取得タイプ
- * @type select
- * @option 習得スキル有り
- * @value 0
- * @option 習得スキル無し
- * @value 1
- * @default 0
- * @desc 次に習得できるスキルの有無によりスキルポイントを取得するか設定します。(スキルポイントを繰り越す場合有効)
  */
 
 /*~struct~gainSkillPoints:ja
@@ -213,24 +226,14 @@ $skillPoint = null;
 
   const pluginName = "SkillPoint";
 
-  PluginManager.registerCommand(pluginName, "setGainSkillPoint", inputGainSkillPoint => {
-    PluginManager_Parser.prototype.parse(inputGainSkillPoint);
-    $skillPoint.setGainSkillPoint(inputGainSkillPoint);
-  });
+  const dataGainSkillPoints = {};
+  const dataActorSkillPoints = {};
 
-  PluginManager.registerCommand(pluginName, "setActorSkillPoint", inputActorSkillPoint => {
-    PluginManager_Parser.prototype.parse(inputActorSkillPoint);
-    $skillPoint.setActorSkillPoint(inputActorSkillPoint);
-  });
+  let params = PluginManager.parameters(pluginName);
 
   PluginManager.registerCommand(pluginName, "setLearnedSkillLevel", inputLearnedSkillLevel => {
     PluginManager_Parser.prototype.parse(inputLearnedSkillLevel);
     $skillPoint.setLearnedSkillLevel(inputLearnedSkillLevel);
-  });
-
-  PluginManager.registerCommand(pluginName, "setOption", inputOption => {
-    PluginManager_Parser.prototype.parse(inputOption);
-    $skillPoint.setOption(inputOption);
   });
 
   //-----------------------------------------------------------------------------
@@ -282,13 +285,10 @@ $skillPoint = null;
   Skill_Point.prototype.constructor = Skill_Point;
 
   Skill_Point.prototype.initialize = function () {
-     this._gainSkillPoints = {};
-     this._actorSkillPoints = {};
+     params = PluginManager_Parser.prototype.parse(params);
      this._skillLevels = this.initSkillLevel();
-     this._displayNextSkill = true;
-     this._carrySkillPoint = false;
-     this._outMemberGain = false;
-     this._gainSpType = 0;
+     this.setGainSkillPoint(params);
+     this.setActorSkillPoint(params);
   }
 
   //-----------------------------------------------------------------------------
@@ -310,19 +310,21 @@ $skillPoint = null;
   //-----------------------------------------------------------------------------
   // 獲得スキルポイントの設定を行います
   //-----------------------------------------------------------------------------
-  Skill_Point.prototype.setGainSkillPoint = function (inputGainSkillPoint) {
-    for (const gainSkillPoint of inputGainSkillPoint.gainSkillPoints) {
+  Skill_Point.prototype.setGainSkillPoint = function (params) {
+    for (const gainSkillPoint of params.gainSkillPoints) {
       const troopId = gainSkillPoint.troopId;
-      const gainSp = gainSkillPoint.skillPoint;
-      this._gainSkillPoints[troopId] = gainSp;
+      if (troopId in dataGainSkillPoints === false) {
+        const gainSp = gainSkillPoint.skillPoint;
+        dataGainSkillPoints[troopId] = gainSp;
+      }
     }
   }
 
   //-----------------------------------------------------------------------------
   // 習得スキルポイントの設定を行います
   //-----------------------------------------------------------------------------
-  Skill_Point.prototype.setActorSkillPoint = function (inputActorSkillPoint) {
-    for (const actorSkillPoint of inputActorSkillPoint.actorSkillPoints) {
+  Skill_Point.prototype.setActorSkillPoint = function (params) {
+    for (const actorSkillPoint of params.actorSkillPoints) {
       const actorId = actorSkillPoint.actorId;
       const skillLevel = actorSkillPoint.skillLevel;
       const skillId = actorSkillPoint.skillId;
@@ -330,10 +332,10 @@ $skillPoint = null;
 
       let setSkill = true;
 
-      if (actorId in this._actorSkillPoints === false) {
-        this._actorSkillPoints[actorId] = [];
+      if (actorId in dataActorSkillPoints === false) {
+        dataActorSkillPoints[actorId] = [];
       } else {
-        for (const regActorSkillPoint of this._actorSkillPoints[actorId]) {
+        for (const regActorSkillPoint of dataActorSkillPoints[actorId]) {
           if (regActorSkillPoint.skillId === skillId) {
             setSkill = false;
             break;
@@ -343,12 +345,12 @@ $skillPoint = null;
 
       if (setSkill) {
         const skillData = {skillLevel:skillLevel, skillId:skillId, needSp:needSp};
-        this._actorSkillPoints[actorId].push(skillData);
+        dataActorSkillPoints[actorId].push(skillData);
       }
     }
 
-    for (const actorId in this._actorSkillPoints) {
-      this._actorSkillPoints[actorId].sort(function(a, b){
+    for (const actorId in dataActorSkillPoints) {
+      dataActorSkillPoints[actorId].sort(function(a, b){
 	if (a.skillLevel > b.skillLevel) return 1;
 	if (a.skillLevel < b.skillLevel) return -1;
 	if (a.needSp > b.needSp) return 1;
@@ -384,16 +386,6 @@ $skillPoint = null;
   }
 
   //-----------------------------------------------------------------------------
-  // オプションの設定を行います
-  //-----------------------------------------------------------------------------
-  Skill_Point.prototype.setOption = function (inputOption) {
-    this._displayNextSkill = inputOption.displayNextSkill;
-    this._carrySkillPoint = inputOption.carrySkillPoint;
-    this._outMemberGain = inputOption.outMemberGain;
-    this._gainSpType = inputOption.gainSpType;
-  }
-
-  //-----------------------------------------------------------------------------
   // 次に習得可能なスキルがあるか確認を行います
   //-----------------------------------------------------------------------------
   Skill_Point.prototype.isNextSkill = function (actor) {
@@ -406,7 +398,7 @@ $skillPoint = null;
   Skill_Point.prototype.getNextSkill = function (actor) {
 
     const skillLevel = this._skillLevels[actor._actorId];
-    const actorSkillPoints = this._actorSkillPoints[actor._actorId];
+    const actorSkillPoints = dataActorSkillPoints[actor._actorId];
     const sp = actor._sp;
 
     let nextSkill = null
@@ -431,7 +423,7 @@ $skillPoint = null;
   // 獲得スキルポイントの取得を行います
   //-----------------------------------------------------------------------------
   Skill_Point.prototype.getGainSkillPoint = function () {
-    return this._gainSkillPoints[$gameTroop.troop().id];
+    return dataGainSkillPoints[$gameTroop.troop().id];
   }
 
   //-----------------------------------------------------------------------------
@@ -440,7 +432,7 @@ $skillPoint = null;
   Skill_Point.prototype.getLearnSkill = function (actor) {
 
     const skillLevel = this._skillLevels[actor._actorId];
-    const actorSkillPoints = this._actorSkillPoints[actor._actorId];
+    const actorSkillPoints = dataActorSkillPoints[actor._actorId];
     const sp = actor._sp;
 
     let learnSkill = null;
@@ -509,9 +501,9 @@ $skillPoint = null;
   // スキルポイント用に作成したメッセージ
   //-----------------------------------------------------------------------------
   TextManager.skillPointDataSysytem = function() {
-     return {0:"スキルポイント",
-             1:"SP",
-             "obtainSpSkill":"%1は%2を覚えた！",
+     return {0:params.skillPoint,
+             1:params.skillPointA,
+             "obtainSpSkill":params.obtainSpSkill,
              "spPointMsg":"必要スキルポイント",
              "nextSkillMsg":"習得まであと　%1"
      };
@@ -559,7 +551,7 @@ $skillPoint = null;
 
     let actors = [];
 
-    if ($skillPoint._outMemberGain) {
+    if (params.outMemberGain) {
       actors = $gameActors._data;
     } else {
       actors = $gameParty.members();
@@ -567,7 +559,7 @@ $skillPoint = null;
 
     for (const actor of actors) {
       if (actor) {
-        if ($skillPoint.isNextSkill(actor) || $skillPoint._carrySkillPoint) {
+        if ($skillPoint.isNextSkill(actor) || params.carrySkillPoint) {
           actor.gainSp();
         }
       }
@@ -593,7 +585,7 @@ $skillPoint = null;
   //-----------------------------------------------------------------------------
   Game_Actor.prototype.gainSp = function() {
 
-    if ($skillPoint.isNextSkill(this) || $skillPoint._gainSpType === 1) {
+    if ($skillPoint.isNextSkill(this) || params.gainSpType === 1) {
       const skillPoint = $skillPoint.getGainSkillPoint();
       this._sp += skillPoint;
     }
@@ -615,7 +607,7 @@ $skillPoint = null;
       }
     }
 
-    if (!$skillPoint.isNextSkill(this) && !$skillPoint._carrySkillPoint) {
+    if (!$skillPoint.isNextSkill(this) && !params.carrySkillPoint) {
       this._sp = 0;
     }
 
@@ -633,7 +625,7 @@ $skillPoint = null;
   Window_SkillList.prototype.makeItemList = function() {
     // 再定義前のWindow_SkillList.prototype.makeItemList関数を呼び出し
     _Window_SkillList_MakeItemList.apply(this, arguments);
-    if (this._actor && $skillPoint._displayNextSkill && !$gameParty.inBattle()) {
+    if (this._actor && params.displayNextSkill && !$gameParty.inBattle()) {
       const nextSkill = this.createNextSkill();
       if (nextSkill) {
         this._data.push(nextSkill);
