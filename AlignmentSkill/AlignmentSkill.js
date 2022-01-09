@@ -5,6 +5,7 @@
  * @target MZ
  * @plugindesc 連携スキルを設定します。
  * @author Basu
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/AlignmentSkill/AlignmentSkill.js
  *
  * @help AlignmentSkill.js
  *
