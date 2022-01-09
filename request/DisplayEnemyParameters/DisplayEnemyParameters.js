@@ -120,15 +120,15 @@
  * @on 有効
  * @off 無効
  * @default true
- * @text パラメータ表示
- * @desc パラメータの数値を表示します。
+ * @text パラメータ名表示
+ * @desc パラメータ名を表示します。
  *
  * @param value
  * @type boolean
  * @on 有効
  * @off 無効
  * @default true
- * @text パラメータ表示
+ * @text パラメータ値表示
  * @desc パラメータの数値を表示します。
  *
  * @param gauge
