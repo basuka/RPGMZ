@@ -67,11 +67,7 @@
  *
  *=====================================================================================================================================================
  *
- * @command setAlignmentSkill
- * @text 連携スキルの設定
- * @desc 味方二人以上の連携スキルを設定します。
- *
- * @arg alignmentSkills
+ * @param alignmentSkills
  * @type struct<alignmentSkills>[]
  * @text 連携スキル一覧
  * @desc 連携スキルにするスキル一覧を設定します。
@@ -94,7 +90,6 @@
  * @type text
  * @text 計算式
  * @desc 計算式の設定をします。
- *
  */
 
 /*~struct~alignmentParam:ja
@@ -131,19 +126,8 @@ $alignmentSkill = null;
 
   const pluginName = "AlignmentSkill";
 
-  PluginManager.registerCommand(pluginName, "setAlignmentSkill", inputAlignmentSkills => {
-     // バトルシステムが「1:タイムプログレス（アクティブ）」の場合だけ使用可能
-     if (BattleManager.isActiveTpb()) {
-       PluginManager_Parser.prototype.parse(inputAlignmentSkills)
-       for (alignmentSkillParamName in inputAlignmentSkills) {
-          for (alignmentSkillParam of inputAlignmentSkills[alignmentSkillParamName]) {
-            $alignmentSkill.setParams(alignmentSkillParam);
-          }
-       }
-       $alignmentSkill.setItemList();
-     }
-  });
-
+  const allAlignmentParams = {};
+  const data = {};
 
   //-----------------------------------------------------------------------------
   // PluginManager_Parser
@@ -191,13 +175,15 @@ $alignmentSkill = null;
     this.initialize(...arguments);
   }
 
-  Alignment_Skill.prototype = Object.create(Object.prototype);
-  Alignment_Skill.prototype.constructor = Alignment_Skill;
-
   Alignment_Skill.prototype.initialize = function () {
-     this._allAlignmentParams = {};
-     this._data = {};
-     this._learnAlignmentSkill = [];
+    if (BattleManager.isActiveTpb()) {
+      const params = PluginManager_Parser.prototype.parse(PluginManager.parameters(pluginName));
+      this._learnAlignmentSkill = [];
+      for (const paramInfo of params["alignmentSkills"]) {
+        this.setAlignmentSkillData(paramInfo);
+      }
+      this.setItemList();
+    }
   }
 
   //-----------------------------------------------------------------------------
@@ -205,7 +191,7 @@ $alignmentSkill = null;
   //-----------------------------------------------------------------------------
   Alignment_Skill.prototype.makeItemListMsg = function (stypeId) {
 
-     if (stypeId in this._data === false) {
+     if (stypeId in data === false) {
        const itemListMsg = [];
 
        // メッセージ用のダミースキルを生成
@@ -216,19 +202,19 @@ $alignmentSkill = null;
        itemListMsg.push(msg);
        itemListMsg.push(this.getEmptyData(stypeId));
 
-       this._data[stypeId] = itemListMsg;
+       data[stypeId] = itemListMsg;
      }
   }
 
   //-----------------------------------------------------------------------------
   // 入力された情報からスキルデータに各情報を設定
   //-----------------------------------------------------------------------------
-  Alignment_Skill.prototype.setParams = function (inputAlignmentSkillParam) {
+  Alignment_Skill.prototype.setAlignmentSkillData = function (paramInfo) {
 
      // 入力情報の取得
 
      // 連携スキル
-     const alignmentSkill = $dataSkills[inputAlignmentSkillParam.alignmentSkill];
+     const alignmentSkill = $dataSkills[paramInfo.alignmentSkill];
      if (!alignmentSkill) {
         return null;
      }
@@ -236,7 +222,7 @@ $alignmentSkill = null;
      const inputParams = []
 
      // 連携スキル情報の設定
-     for (alignmentParam of inputAlignmentSkillParam.alignmentParams) {
+     for (alignmentParam of paramInfo.alignmentParams) {
         // アクター情報
         const actor = $dataActors[alignmentParam.actorId];
         if (!actor) {
@@ -266,8 +252,8 @@ $alignmentSkill = null;
      }
 
      // 連携用パラメータを設定
-     const allAlignmentParam = {params: inputParams, formula: inputAlignmentSkillParam.formula, stypeId: alignmentSkill.stypeId}
-     this._allAlignmentParams[alignmentSkill.id] = allAlignmentParam;
+     const allAlignmentParam = {params: inputParams, formula: paramInfo.formula, stypeId: alignmentSkill.stypeId}
+     allAlignmentParams[alignmentSkill.id] = allAlignmentParam;
   }
 
   //-----------------------------------------------------------------------------
@@ -275,8 +261,8 @@ $alignmentSkill = null;
   //-----------------------------------------------------------------------------
   Alignment_Skill.prototype.setItemList = function () {
 
-    for (const skillId in this._allAlignmentParams) {
-      const allAlignmentParam = this._allAlignmentParams[skillId]
+    for (const skillId in allAlignmentParams) {
+      const allAlignmentParam = allAlignmentParams[skillId]
       const stypeId = allAlignmentParam.stypeId;
 
       let skill = $dataSkills[skillId];
@@ -288,12 +274,12 @@ $alignmentSkill = null;
       // スキル用メッセージデータの作成
       this.makeItemListMsg(stypeId);
 
-      if (!this._data[stypeId].includes(skill)) {
+      if (!data[stypeId].includes(skill)) {
         // 連携スキルフラグを設定
         skill.alignmentFlag = true;
 
-        this._data[stypeId].push(skill);
-        this._data[stypeId].sort((a, b) => a.id - b.id);
+        data[stypeId].push(skill);
+        data[stypeId].sort((a, b) => a.id - b.id);
       }
     }
   }
@@ -302,8 +288,8 @@ $alignmentSkill = null;
   // 連携スキルデータの読み込み
   //-----------------------------------------------------------------------------
   Alignment_Skill.prototype.loadAlignmentSkill = function () {
-     for (const stypeId in this._data) {
-        const loadSkills = this._data[stypeId];
+     for (const stypeId in data) {
+        const loadSkills = data[stypeId];
         for (const loadSkill of loadSkills) {
            if (!this.isDummyData(loadSkill)) {
              $dataSkills[loadSkill.id] = loadSkill;
@@ -328,8 +314,8 @@ $alignmentSkill = null;
   //-----------------------------------------------------------------------------
   Alignment_Skill.prototype.makeMenuItemList = function (windowSkillList) {
     const alignmentSkillList = [];
-    for (stypeId in this._data) {
-      const alignmentSkills = this._data[stypeId]
+    for (stypeId in data) {
+      const alignmentSkills = data[stypeId]
       for (alignmentSkill of alignmentSkills) {
         if (this.isData(alignmentSkill, windowSkillList._actor) && windowSkillList.includes(alignmentSkill)) {
           alignmentSkillList.push(alignmentSkill);
@@ -345,12 +331,12 @@ $alignmentSkill = null;
   // 連携スキルデータの作成(戦闘)
   //-----------------------------------------------------------------------------
   Alignment_Skill.prototype.makeBatlleItemList = function (windowSkillList) {
-    if (windowSkillList._data.length && Object.keys(this._data).length) {
+    if (windowSkillList._data.length && Object.keys(data).length) {
       this.adjustItemList(windowSkillList._data);
-      for (stypeId in this._data) {
+      for (stypeId in data) {
         let skillCheck = false;
         const skillData = []
-        const alignmentSkills = this._data[stypeId]
+        const alignmentSkills = data[stypeId]
         for (alignmentSkill of alignmentSkills) {
           if (this.isDummyData(alignmentSkill) || this.isData(alignmentSkill, windowSkillList._actor)) {
             skillData.push(alignmentSkill);
@@ -498,7 +484,7 @@ $alignmentSkill = null;
   // 対象のスキルタイプが連携スキルタイプか確認を行う
   //-----------------------------------------------------------------------------
   Alignment_Skill.prototype.isAlignmentSkillType = function (stypeId) {
-    return this._data[stypeId] ? true : false;
+    return data[stypeId] ? true : false;
   }
 
 
@@ -655,8 +641,8 @@ $alignmentSkill = null;
     _Window_SkillType_MakeCommandList.apply(this, arguments);
 
     if (this._actor) {
-      for (const stypeId in $alignmentSkill._data) {
-        for (const skill of $alignmentSkill._data[stypeId]) {
+      for (const stypeId in data) {
+        for (const skill of data[stypeId]) {
           if (skill.alignmentFlag && $alignmentSkill.isData(skill, this._actor)) {
             const name = $dataSystem.skillTypes[skill.stypeId];
             this.addCommand(name, "skill", true, skill.stypeId);
@@ -1454,7 +1440,7 @@ $alignmentSkill = null;
   // 連携スキルの習得
   //-----------------------------------------------------------------------------
   BattleManager.learnAlignmentSkill = function() {
-    for (skillId in $alignmentSkill._allAlignmentParams) {
+    for (skillId in allAlignmentParams) {
       const skill = $dataSkills[skillId];
       if (skill && !$alignmentSkill.isLearnAlignmentSkill(skill)) {
         if ($alignmentSkill.isExec(skill)) {
