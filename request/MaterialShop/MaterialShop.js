@@ -580,6 +580,30 @@ $teleport = null;
     }
   };
 
+  Scene_MaterialShop.prototype.onSellOk = function() {
+    this._item = this._sellWindow.item();
+    this._categoryWindow.hide();
+    this._sellWindow.hide();
+    this._numberWindow.setup(this._item, this.maxSell(), this.sellingPrice());
+    this._numberWindow.setCurrencyUnit(this.currencyUnit());
+    this._numberWindow.show();
+    this._numberWindow.activate();
+    drawMaterialItem = false;
+    this._materialItemWindow.setItem(this._item);
+    this._materialItemWindow.show();
+  };
+
+  Scene_MaterialShop.prototype.onSellCancel = function() {
+    this._sellWindow.deselect();
+    this._materialItemWindow.setItem(null);
+    this._helpWindow.clear();
+    if (this._categoryWindow.needsSelection()) {
+        this._categoryWindow.activate();
+    } else {
+        this.onCategoryCancel();
+    }
+  };
+
   Scene_MaterialShop.prototype.maxMaterial = function(max) {
     for (const material of materials[this._item.id].materialItemInfos) {
       const materialItem = $dataItems[material.materialId];
@@ -588,6 +612,31 @@ $teleport = null;
     }
     return max;
   }
+
+  Scene_MaterialShop.prototype.onNumberOk = function() {
+    SoundManager.playShop();
+    switch (this._commandWindow.currentSymbol()) {
+        case "buy":
+            this.doBuy(this._numberWindow.number());
+            break;
+        case "sell":
+            this.doSell(this._numberWindow.number());
+            break;
+    }
+    this.endNumberInput();
+    this._goldWindow.refresh();
+    this._materialItemWindow.refresh();
+  };
+
+  Scene_MaterialShop.prototype.commandBuy = function() {
+    drawMaterialItem = true;
+    Scene_Shop.prototype.commandBuy.call(this);
+  };
+
+  Scene_MaterialShop.prototype.commandSell = function() {
+    drawMaterialItem = false;
+    Scene_Shop.prototype.commandSell.call(this);
+  };
 
 
   //-----------------------------------------------------------------------------
