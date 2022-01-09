@@ -94,6 +94,6 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/request/MaterialShop/Materia
 </br>
 </br>
 
-※装備購入時に表示されるキャラクターのスタータス情報は画面に入らなかったので購入個数設定画面で表示させるようにしました。</br>
+※装備購入時に表示されるキャラクターのスタータス情報は画面に入らなかったので左右キーで切り替えるようにしました。</br>
  
  ![Image9](/request/MaterialShop/image/image9.png)　![Image8](/request/MaterialShop/image/image10.png)</br>
