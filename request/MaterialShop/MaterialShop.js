@@ -513,6 +513,7 @@ $teleport = null;
     this._dummyWindow.show();
     this._buyWindow.hide();
     this._materialItemWindow.hide();
+    this._statusWindow.hide();
     this._helpWindow.clear();
   };
 
