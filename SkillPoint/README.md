@@ -4,7 +4,7 @@
 セーブデータをロード時にセーブ時に保存されたスキルポイント情報も一緒にロード・設定されます。</br>
 スキルポイント情報は一度設定すればその後の再設定は不要です。</br>
 
-【テレポートプラグイン】</br>
+【スキルポイントプラグイン】</br>
 https://raw.githubusercontent.com/basuka/RPGMZ/main/SkillPoint/SkillPoint.js</br>
 
 
