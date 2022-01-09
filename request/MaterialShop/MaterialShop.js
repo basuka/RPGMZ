@@ -145,6 +145,7 @@ $teleport = null;
   let shopGoods = [];
   let materials = {};
   let purchaseOnly = false;
+  let drawMaterialItem = true;
 
   PluginManager.registerCommand(pluginName, "setShop", inputMaterialShopParam => {
     PluginManager_Parser.prototype.parse(inputMaterialShopParam);
@@ -322,6 +323,31 @@ $teleport = null;
     }
   };
 
+  Window_MaterialShopBuy.prototype.processCursorMove = function() {
+    Window_ShopBuy.prototype.processCursorMove.call(this);
+    if (this.isCursorMovable()) {
+        if (Input.isRepeated("right")) {
+            if (drawMaterialItem) {
+                drawMaterialItem = false;
+            } else {
+                drawMaterialItem = true;
+            }
+            this._materialItemWindow.refresh();
+            this.playCursorSound();
+        }
+        if (Input.isRepeated("left")) {
+            if (drawMaterialItem) {
+                drawMaterialItem = false;
+            } else {
+                drawMaterialItem = true;
+            }
+            this._materialItemWindow.refresh();
+            this.playCursorSound();
+        }
+        
+    }
+  };
+
 
   //-----------------------------------------------------------------------------
   // Window_MaterialItem
@@ -338,6 +364,7 @@ $teleport = null;
     Window_StatusBase.prototype.initialize.call(this, rect);
     this._item = null;
     this._pageIndex = 0;
+    this._number = 1;
     this.refresh();
   };
 
@@ -348,7 +375,12 @@ $teleport = null;
         this.drawPossession(x, 0);
 
         const y = Math.floor(this.lineHeight() * 1.5)
-        this.drawMaterial(x, y);
+
+        if (drawMaterialItem || !this.isEquipItem()) {
+           this.drawMaterial(x, y);
+        } else {
+           this.drawEquipInfo(x, y);
+        }
     }
   };
 
@@ -374,7 +406,7 @@ $teleport = null;
 
       this.changePaintOpacity(enabled);
       this.resetTextColor();
-      this.drawMaterialQuantity(x, y, materialItem, material.quantity);
+      this.drawMaterialQuantity(x, y, materialItem, material.quantity * this._number);
       this.drawItemName(materialItem, x, y, width);
       this.changePaintOpacity(true);
     }
@@ -388,7 +420,11 @@ $teleport = null;
     const possQuantity = $gameParty.numItems(item);
     const drawQuantity = TextManager.quantity.format(possQuantity, quantity);
     this.drawText(drawQuantity, x, y, width, "right");
- };
+  };
+
+  Window_MaterialItem.prototype.setNumber = function(number) {
+    this._number = number;
+  }
 
 
   //-----------------------------------------------------------------------------
@@ -402,13 +438,21 @@ $teleport = null;
   Window_MaterialShopNumber.prototype = Object.create(Window_ShopNumber.prototype);
   Window_MaterialShopNumber.prototype.constructor = Window_ShopNumber;
 
-  Window_ShopNumber.prototype.setup = function(item, max, price) {
-    this._item = item;
-    this._max = Math.floor(max);
-    this._price = price;
-    this._number = 1;
-    this.placeButtons();
-    this.refresh();
+  Window_MaterialShopNumber.prototype.refresh = function() {
+    Window_Selectable.prototype.refresh.call(this);
+    this.drawItemBackground(0);
+    this.drawCurrentItemName();
+    this.drawMultiplicationSign();
+    this.drawNumber();
+    this.drawHorzLine();
+    this.drawTotalPrice();
+
+    this._materialItemWindow.setNumber(this._number);
+    this._materialItemWindow.refresh();
+  };
+
+  Window_MaterialShopNumber.prototype.setMaterialItemWindow = function(materialItemWindow) {
+    this._materialItemWindow = materialItemWindow;
   };
 
 
@@ -433,9 +477,8 @@ $teleport = null;
     this.createGoldWindow();
     this.createCommandWindow();
     this.createDummyWindow();
-    this.createNumberWindow();
-    this.createStatusWindow();
     this.createMaterialWindow();
+    this.createNumberWindow();
     this.createBuyWindow();
     this.createCategoryWindow();
     this.createSellWindow();
@@ -471,18 +514,21 @@ $teleport = null;
     this.addWindow(this._commandWindow);
   };
 
+  Scene_MaterialShop.prototype.createNumberWindow = function() {
+    const rect = this.numberWindowRect();
+    this._numberWindow = new Window_MaterialShopNumber(rect);
+    this._numberWindow.setMaterialItemWindow(this._materialItemWindow);
+    this._numberWindow.hide();
+    this._numberWindow.setHandler("ok", this.onNumberOk.bind(this));
+    this._numberWindow.setHandler("cancel", this.onNumberCancel.bind(this));
+    this.addWindow(this._numberWindow);
+  };
+
   Scene_MaterialShop.prototype.activateBuyWindow = function() {
     this._buyWindow.setMoney(this.money());
     this._buyWindow.show();
     this._buyWindow.activate();
     this._materialItemWindow.show();
-  };
-
-  Scene_Shop.prototype.activateBuyWindow = function() {
-    this._buyWindow.setMoney(this.money());
-    this._buyWindow.show();
-    this._buyWindow.activate();
-    this._statusWindow.show();
   };
 
   Scene_MaterialShop.prototype.activateSellWindow = function() {
@@ -501,11 +547,9 @@ $teleport = null;
     this._numberWindow.setup(this._item, this.maxBuy(), this.buyingPrice());
     this._numberWindow.setCurrencyUnit(this.currencyUnit());
     this._numberWindow.show();
-    this._materialItemWindow.hide();
-    this._statusWindow.setItem(this._item);
-    this._statusWindow.refresh();
-    this._statusWindow.show();
     this._numberWindow.activate();
+    drawMaterialItem = true;
+    this._materialItemWindow.refresh();
   };
 
   Scene_MaterialShop.prototype.onBuyCancel = function() {
@@ -513,7 +557,6 @@ $teleport = null;
     this._dummyWindow.show();
     this._buyWindow.hide();
     this._materialItemWindow.hide();
-    this._statusWindow.hide();
     this._helpWindow.clear();
   };
 
