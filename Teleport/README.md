@@ -83,8 +83,15 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 </br>
 </br>
 
-<B>テレポート機能の初期設定</B></br>
-テレポート機能を設定するスキル及びアイテムの設定を行います。
+<B>テレポートスキル</B></br>
+テレポート機能を設定するスキルの設定を行います。
+
+</br>
+</br>
+</br>
+
+<B>テレポートアイテム</B></br>
+テレポート機能を設定するスキルの設定を行います。
 
 </br>
 </br>
