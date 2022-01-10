@@ -5,6 +5,7 @@
  * @target MZ
  * @plugindesc テレポート機能を設定します。
  * @author Basu
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js
  *
  * @help Teleport.js
  *
