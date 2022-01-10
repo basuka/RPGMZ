@@ -10,7 +10,7 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/request/DisplayEnemyParamete
 
 ![Image1](/request/DisplayEnemyParameters/image/image1.png)
 
-表示位置とサイズは、エネミーのメモ欄で個別に設定可能です。
+表示位置とサイズは、プラグインパラメータ【ステータスの表示位置とサイズの設定】で個別に設定可能です。
 
 `<ステータスの表示位置とサイズの設定: X座標の調整>`
 * X座標の調整 : 表示位置のX座標の差（負の値で左にずれる）
