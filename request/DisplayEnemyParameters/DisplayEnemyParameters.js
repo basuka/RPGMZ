@@ -120,15 +120,15 @@
  * @on 有効
  * @off 無効
  * @default true
- * @text パラメータ名表示
- * @desc パラメータ名を表示します。
+ * @text パラメータ表示
+ * @desc パラメータの数値を表示します。
  *
  * @param value
  * @type boolean
  * @on 有効
  * @off 無効
  * @default true
- * @text パラメータ値表示
+ * @text パラメータ表示
  * @desc パラメータの数値を表示します。
  *
  * @param gauge
@@ -169,10 +169,6 @@
 
 (() => {
 
-  const pluginName = "DisplayEnemyParameters";
-
-  let params = PluginManager.parameters(pluginName);
-
   //-----------------------------------------------------------------------------
   // PluginManager_Parser
   //-----------------------------------------------------------------------------
@@ -210,16 +206,9 @@
       return Object.prototype.toString.call(param).slice(8, -1).toLowerCase() === type;
   }
 
+  const pluginName = "DisplayEnemyParameters";
 
-  //=============================================================================
-  // Scene_Boot
-  //=============================================================================
-
-  const _Scene_Boot_Create = Scene_Boot.prototype.create;
-  Scene_Boot.prototype.create = function() {
-    _Scene_Boot_Create.apply(this, arguments);
-    params = PluginManager_Parser.prototype.parse(params);
-  };
+  const params = PluginManager_Parser.prototype.parse(PluginManager.parameters(pluginName));
 
 
   //=============================================================================
@@ -257,6 +246,8 @@
 
   Sprite_Enemy.prototype.getPosStatus = function(enemy) {
     const posStatusList = [];
+console.log(params)
+console.log(params.dispEnemyHp.gauge)
     for (const posStatus of params.posStatusList) {
       if (enemy.id === posStatus.enemyId) {
         posStatusList.push(posStatus.statusPosX);
