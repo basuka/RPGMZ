@@ -15,13 +15,11 @@
  *
  * ■各設定項目
  *
- *   ■テレポート機能の初期設定
+ *  【テレポートスキル】
+ *   テレポートに使用するスキルの設定を行います(未使用時は省略可)
  *
- *    【テレポートスキル】
- *     テレポートに使用するスキルの設定を行います(未使用時は省略可)
- *
- *    【テレポートアイテム】
- *     テレポートに使用するアイテムの設定を行います(未使用時は省略可)
+ *  【テレポートアイテム】
+ *   テレポートに使用するアイテムの設定を行います(未使用時は省略可)
  *
  *
  *   ■テレポートの設定
@@ -157,18 +155,27 @@
  *    ※イベントがキャラクターなどイベントとプレイヤーの座標が異なる場合(プレイヤーと重ならない場合)は
  *      転移先を直接指定してください。
  *
+ *
+ *-----------------------------------------------------------------------------
+ * 設定方法
+ *-----------------------------------------------------------------------------
+ * 1.「プラグインマネージャー(プラグイン管理)」に、本プラグインを追加してください
+ *
+ * 2.追加した本プラグインのパラメータからテレポート機能に必要な情報を設定してください
+ *
+ * 3.「プラグインコマンド【テレポートの設定】」からテレポート情報を設定してください
+ *   ※テレポート情報を設定する際は、【設定上の注意】に従って設定してください
+ *
+ * 4.必要に応じて「プラグインコマンド【テレポートの使用可否設定】」から、テレポートの
+ *   使用可否を設定してください
  *=====================================================================================================================================================
  *
- * @command setTeleportItem
- * @text テレポート機能の初期設定
- * @desc テレポート機能の初期設定を行います。
- *
- * @arg teleportSkill
+ * @param teleportSkillId
  * @type skill
  * @text テレポートスキル
  * @desc テレポートに使用するスキルの設定(未使用時は省略可)
  *
- * @arg teleportItem
+ * @param teleportItemId
  * @type item
  * @text テレポートアイテム
  * @desc テレポートに使用するアイテムの設定(未使用時は省略可)
@@ -219,7 +226,7 @@
  * @type string
  * @text 転移先名
  * @desc 転移先名の設定を行います。(町や村などの名前)
- *       転移先名の種類で入力を選択していない場合は無効となります。
+ *       転移先名の種類で入力を選択している場合、有効となります。
  *
  * @arg nameDataType
  * @type select
@@ -293,11 +300,6 @@ $teleport = null;
 
   const pluginName = "Teleport";
 
-  PluginManager.registerCommand(pluginName, "setTeleportItem", inputTeleportData => {
-     PluginManager_Parser.prototype.parse(inputTeleportData)
-     $teleport.setTeleportItem(inputTeleportData);
-  });
-
   PluginManager.registerCommand(pluginName, "setTeleport", inputTeleportData => {
      PluginManager_Parser.prototype.parse(inputTeleportData)
      $teleport.setTeleport(inputTeleportData);
@@ -346,6 +348,8 @@ $teleport = null;
       return Object.prototype.toString.call(param).slice(8, -1).toLowerCase() === type;
   }
 
+  const params = PluginManager_Parser.prototype.parse(PluginManager.parameters(pluginName));
+
 
   //-----------------------------------------------------------------------------
   // Teleport
@@ -359,23 +363,9 @@ $teleport = null;
   Teleport.prototype.constructor = Teleport;
 
   Teleport.prototype.initialize = function () {
-     this._teleportSkillId = 0;
-     this._teleportItemId = 0;
      this._data = [];
      this._teleportInfo = null;
      this._permission = true;
-  }
-
-  //-----------------------------------------------------------------------------
-  // 入力された情報からテレポート機能を設定するスキルとアイテムの設定を行います
-  //-----------------------------------------------------------------------------
-  Teleport.prototype.setTeleportItem = function (inputTeleportData) {
-
-    // 入力情報からテレポートスキルの設定
-    this._teleportSkillId = inputTeleportData.teleportSkill;
-
-    // 入力情報からテレポートアイテムの設定
-    this._teleportItemId = inputTeleportData.teleportItem;
   }
 
   //-----------------------------------------------------------------------------
@@ -573,19 +563,22 @@ $teleport = null;
   // 転移先マップデータの取得を行います
   //-----------------------------------------------------------------------------
   Teleport.prototype.getNextMoveMapData = function () {
-    const eventId = $gameMap.eventIdXy($gamePlayer.x, $gamePlayer.y);
-    const event = $gameMap.event(eventId).page();
 
     let nextMoveMapData = null;
+    const eventId = $gameMap.eventIdXy($gamePlayer.x, $gamePlayer.y);
 
-    if (event) {
-      for (const key in event.list) {
-        const contents = event.list[key];
-        if (contents.code === 201) {
-          nextMoveMapData = {};
-          nextMoveMapData.mapId = contents.parameters[1];
-          nextMoveMapData.x = contents.parameters[2];
-          nextMoveMapData.y = contents.parameters[3];
+    if (eventId) {
+      const event = $gameMap.event(eventId).page();
+
+      if (event) {
+        for (const key in event.list) {
+          const contents = event.list[key];
+          if (contents.code === 201) {
+            nextMoveMapData = {};
+            nextMoveMapData.mapId = contents.parameters[1];
+            nextMoveMapData.x = contents.parameters[2];
+            nextMoveMapData.y = contents.parameters[3];
+          }
         }
       }
     }
@@ -725,7 +718,7 @@ $teleport = null;
   // 使用したスキル、アイテムがテレポート用か確認する
   //-----------------------------------------------------------------------------
   Teleport.prototype.isTeleport = function (item) {
-    return this._teleportSkillId === item.id || this._teleportItemId === item.id;
+    return params.teleportSkillId === item.id || params.teleportItemId === item.id;
   }
 
   //-----------------------------------------------------------------------------
@@ -1191,7 +1184,7 @@ $teleport = null;
 
     // 再定義前のDataManager.makeSaveContents関数を呼び出し
     const contents = _DataManager_Make_Save_Contents.apply(this, arguments);
-    contents.teleport = $teleport;
+    //contents.teleport = $teleport;
     return contents;
   };
 
@@ -1202,13 +1195,11 @@ $teleport = null;
   DataManager.extractSaveContents = function(contents) {
 
     for(const name in contents) {
+      console.log(contents[name]);
+      console.log(typeof contents[name]);
       if (contents[name].constructor.name === "Object" && contents[name]["@"]) {
-        try {
-          const obj = eval(contents[name]["@"]);
-          Object.setPrototypeOf(contents[name], obj.prototype);
-        } catch(e) {
-          //
-        }
+        const obj = eval(contents[name]["@"]);
+        Object.setPrototypeOf(contents[name], obj.prototype);
       }
     } 
 
