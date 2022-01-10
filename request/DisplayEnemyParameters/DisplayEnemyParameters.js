@@ -246,8 +246,6 @@
 
   Sprite_Enemy.prototype.getPosStatus = function(enemy) {
     const posStatusList = [];
-console.log(params)
-console.log(params.dispEnemyHp.gauge)
     for (const posStatus of params.posStatusList) {
       if (enemy.id === posStatus.enemyId) {
         posStatusList.push(posStatus.statusPosX);
