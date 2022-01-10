@@ -8,10 +8,8 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 
 
 <B>設定項目</B></br>
-
-- テレポート機能の初期設定
-  - テレポートスキル
-  - テレポートアイテム
+- テレポートスキル
+- テレポートアイテム
 - テレポートの設定
   - 表示順番号
   - 転移先マップの種類
