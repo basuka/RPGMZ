@@ -1,6 +1,6 @@
 戦闘画面にエネミーのパラメータを表示するプラグインです。
 
-【スキルポイントプラグイン】</br>
+【戦闘画面にエネミーのパラメータを表示するプラグイン】</br>
 https://raw.githubusercontent.com/basuka/RPGMZ/main/request/DisplayEnemyParameters/DisplayEnemyParameters.js
 
 ## 仕様
