@@ -8,6 +8,7 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 
 
 <B>設定項目</B></br>
+■パラメータ
 - テレポートスキル
 - テレポートアイテム
 - テレポートの設定
@@ -21,6 +22,9 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
   - X軸の調整
   - Y軸の調整タイプ
   - Y軸の調整
+
+
+■プラグインコマンド
 - テレポートの使用可否設定
   - テレポート使用可否
 
