@@ -9,6 +9,7 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/SkillPoint/SkillPoint.js</br
 
 
 <B>設定項目</B></br>
+■パラメータ
 - 獲得スキルポイント
   - 敵グループ
   - 獲得スキルポイント
@@ -22,6 +23,10 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/SkillPoint/SkillPoint.js</br
   - スキルポイントの繰り越し
   - パーティーメンバー外の取得
   - スキルポイントの取得タイプ
+</br>
+
+
+■プラグインコマンド
 - 習得可能スキルレベルの設定
   - スキルレベル
   - スキルレベル設定対象アクター
