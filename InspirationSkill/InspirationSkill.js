@@ -234,6 +234,7 @@
 
   const enemyInspirations = {};
   let inspirationSkill = 0;
+  let inspirationActorId = 0
   let inspirationFlag = false;
 
 
@@ -297,6 +298,7 @@
           inspirationSkill = inspirationSkills[Math.floor( Math.random() * inspirationSkills.length )];
           subject.currentAction()._item._itemId = inspirationSkill;
           subject.learnSkill(inspirationSkill);
+          inspirationActorId = subject._actorId;
         }
       }
     }
@@ -332,6 +334,7 @@
         probability = minProbability;
       }
     }
+
     return probability;
   };
 
@@ -368,6 +371,14 @@
     this.addChild(this._inspirationSprite);
   };
 
+  const _Sprite_Actor_SetBattler = Sprite_Actor.prototype.setBattler;
+  Sprite_Actor.prototype.setBattler = function(battler) {
+    if (battler !== this._actor) {
+      this._inspirationSprite.setup(battler);
+    }
+    _Sprite_Actor_SetBattler.apply(this, arguments);
+  };
+
 
   function Sprite_Inspiration() {
     this.initialize(...arguments);
@@ -395,6 +406,10 @@
     this.setFrame(0, 0, 0, 0);
   };
 
+  Sprite_Inspiration.prototype.setup = function(battler) {
+    this._battler = battler;
+  };
+
   Sprite_Inspiration.prototype.update = function() {
     Sprite.prototype.update.call(this);
     this._animationCount++;
@@ -410,7 +425,7 @@
   };
 
   Sprite_Inspiration.prototype.updatePattern = function() {
-    if (inspirationFlag) {
+    if (inspirationFlag && this._battler._actorId === inspirationActorId) {
       this._pattern++;
       this._pattern %= 8;
       this._inspirationIndex = 9;
@@ -429,11 +444,10 @@
         this.setFrame(sx, sy, w, h);
         if (this._pattern === 7) {
           inspirationFlag = false;
+          inspirationActorId = 0;
         }
     } else {
         this.setFrame(0, 0, 0, 0);
     }
   };
-
-
 })();
