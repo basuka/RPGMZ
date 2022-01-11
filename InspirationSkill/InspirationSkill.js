@@ -44,7 +44,7 @@
  *   スキルを閃いた際の効果音を設定します。
  *
  *    ・SEファイル名
- *      スキル閃いた際に再生する効果音を設定します。
+ *      スキルを閃いた際に再生する効果音を設定します。
  *
  *    ・音量
  *      効果音の音量を設定します。
@@ -66,7 +66,7 @@
  *      閃きの難易度を設定します。
  *
  *    ・確率
- *      閃き難易度の閃く確率を設定します
+ *      閃き難易度の閃く確率を設定します。
  *
  *    ※ 閃き難易度は「閃きスキルの閃き難易度 - エネミーの閃きレベル」で算出されます。
  *
@@ -303,17 +303,33 @@
   };
 
   BattleManager.getProbability = function(targetEnemyData) {
-    let checkDifficulty = null;
-    let probability = 0;
+    let maxDifficulty = null;
+    let minDifficulty = null;
+    let maxProbability = null;
+    let minProbability = null;
+    let probability = null;
+
     for (const inspirationDifficulty of params.inspirationDifficultys) {
       if (targetEnemyData.difficulty === inspirationDifficulty.difficulty) {
         probability = inspirationDifficulty.probability;
         break;
       } else {
-        if (!checkDifficulty || checkDifficulty > inspirationDifficulty.difficulty) {
-          checkDifficulty = inspirationDifficulty.difficulty;
-          probability = inspirationDifficulty.probability;
+        if (!maxDifficulty || maxDifficulty < inspirationDifficulty.difficulty) {
+          maxDifficulty = inspirationDifficulty.difficulty;
+          maxProbability = inspirationDifficulty.probability;
         }
+        if (!minDifficulty || minDifficulty > inspirationDifficulty.difficulty) {
+          minDifficulty = inspirationDifficulty.difficulty;
+          minProbability = inspirationDifficulty.probability;
+        }
+      }
+    }
+
+    if (!probability) {
+      if (targetEnemyData.difficulty > maxDifficulty) {
+        probability = maxProbability;
+      } else {
+        probability = minProbability;
       }
     }
     return probability;
@@ -418,4 +434,6 @@
         this.setFrame(0, 0, 0, 0);
     }
   };
+
+
 })();
