@@ -232,36 +232,57 @@
 
   const params = PluginManager_Parser.prototype.parse(PluginManager.parameters(pluginName));
 
-  const enemyInspirations = {};
-  let inspirationSkill = 0;
-  let inspirationActorId = 0
-  let inspirationFlag = false;
 
+  //-----------------------------------------------------------------------------
+  // BattleManager
+  //-----------------------------------------------------------------------------
+
+  const _BattleManager_InitMembers = BattleManager.initMembers;
+  BattleManager.initMembers = function() {
+    _BattleManager_InitMembers.apply(this, arguments);
+    this._inspirationInfos = {};
+  };
 
   const _BattleManager_Setup = BattleManager.setup;
   BattleManager.setup = function(troopId, canEscape, canLose) {
     _BattleManager_Setup.apply(this, arguments);
-    this.setInspirationSkillInfo();
+    this.setInspirationInfos();
   };
 
-  BattleManager.setInspirationSkillInfo = function() {
+  BattleManager.setInspirationInfos = function() {
+
+    this._inspirationInfos.skills = {};
+    this._inspirationInfos.enemys = {};
+
+    this.setInspirationSkillInfos();
+    this.setInspirationEnemyInfos();
+  };
+
+  BattleManager.setInspirationSkillInfos = function() {
+
+    const skillInfos = this._inspirationInfos.skills;
+
+    for (const inspirationSkill of params.inspirationSkills) {
+      const skillId = inspirationSkill.inspirationSkillId;
+      const actorIds = inspirationSkill.actorIds;
+      const difficulty = inspirationSkill.difficulty;
+      const derivedSkillId = inspirationSkill.derivedSkillId;
+      skillInfos[skillId] = {actorIds:actorIds, difficulty:difficulty, derivedSkillId:derivedSkillId};
+    }
+  }
+
+  BattleManager.setInspirationEnemyInfos = function() {
+
+    const enemyInfos = this._inspirationInfos.enemys;
+
     for (const enemy of $gameTroop._enemies) {
       for (const inspirationLevel of params.inspirationLevels) {
         if (enemy._enemyId === inspirationLevel.enemyId) {
-          const enemyId = inspirationLevel.enemyId;
-          const inspirations = []
-          for (const inspirationSkill of params.inspirationSkills) {
-            const skillId = inspirationSkill.inspirationSkillId;
-            const actorIds = inspirationSkill.actorIds;
-            const difficulty = inspirationSkill.difficulty - inspirationLevel.inspirationLevel;
-            const derivedSkillId = inspirationSkill.derivedSkillId;
-            inspirations.push({skillId:skillId, actorIds:actorIds, difficulty:difficulty, derivedSkillId:derivedSkillId});
-          }
-          enemyInspirations[enemyId] = inspirations;
+          enemyInfos[enemy._enemyId] = {inspirationLevel:inspirationLevel.inspirationLevel};
         }
       }
     }
-  };
+  }
 
   const _BattleManager_StartAction = BattleManager.startAction;
 　BattleManager.startAction = function() {
@@ -274,45 +295,74 @@
     const action = subject.currentAction();
     const targets = action.makeTargets();
 
-    if (action._targetIndex >= 0) {
-      const inspirationSkills = [];
+    const skillInfos = this._inspirationInfos.skills;
+    const enemyInfos = this._inspirationInfos.enemys;
 
-      const target = targets[action._targetIndex];
-      const targetEnemyDatas = enemyInspirations[target._enemyId];
+    let targetEnemyInfo = null;
 
-      if (targetEnemyDatas) {
-        for (const targetEnemyData of targetEnemyDatas) {
-          if (targetEnemyData.actorIds.includes(subject._actorId)) {
-            if (!targetEnemyData.derivedSkillId || targetEnemyData.derivedSkillId === 0 || targetEnemyData.derivedSkillId === action._item._itemId) {
-              const probability = this.getProbability(targetEnemyData);
-              if (probability > 0 && targetEnemyData.skillId !== 0 && Math.random() * probability < 1) {
-                if (targetEnemyData.skillId && !subject.isLearnedSkill(targetEnemyData.skillId)) {
-                  inspirationSkills.push(targetEnemyData.skillId);
-                }
-              }
-            } 
+    if (action.isForOpponent()) {
+      if (action.isForAll()) {
+        for (const target of targets) {
+          const setTargetEnemyInfo = enemyInfos[target._enemyId];
+          if (!targetEnemyInfo || targetEnemyInfo.inspirationLevel < setTargetEnemyInfo.inspirationLevel) {
+            targetEnemyInfo = setTargetEnemyInfo;
           }
         }
+      } else {
+        const target = targets[0];
+        targetEnemyInfo = enemyInfos[target._enemyId];
+      }
+    }
 
-        if (inspirationSkills.length) {
-          inspirationSkill = inspirationSkills[Math.floor( Math.random() * inspirationSkills.length )];
-          subject.currentAction()._item._itemId = inspirationSkill;
-          subject.learnSkill(inspirationSkill);
-          inspirationActorId = subject._actorId;
+    const inspirationSkills = [];
+
+    if (targetEnemyInfo) {
+      for (const skillId in skillInfos) {
+        const skillInfo = skillInfos[skillId];
+        const actorIds = skillInfo.actorIds;
+        if (actorIds.includes(subject._actorId) && !subject.hasSkill(skillId)) {
+          if (!skillInfo.derivedSkillId || skillInfo.derivedSkillId === 0 || skillInfo.derivedSkillId === action._item._itemId) {
+            const probability = this.getProbability(skillInfo, targetEnemyInfo);
+            if (probability > 0 && skillId !== 0 && Math.random() * probability < 1) {
+              inspirationSkills.push(skillId);
+            }
+          }
         }
+      }
+
+      if (inspirationSkills.length) {
+        inspirationSkill = inspirationSkills[Math.floor( Math.random() * inspirationSkills.length )];
+        subject.currentAction()._item._itemId = inspirationSkill;
+        subject.currentAction()._inspirationFlag = true;
+        subject.learnSkill(inspirationSkill);
+        this.setInspirationFlag(subject);
       }
     }
   };
 
-  BattleManager.getProbability = function(targetEnemyData) {
+  BattleManager.setInspirationFlag = function(subject) {
+    for (const actorSprite of this._spriteset._actorSprites) {
+      if (actorSprite._actor && subject._actorId === actorSprite._actor._actorId) {
+        for (const sprite of actorSprite.children) {
+          if (typeof sprite.setInspirationFlag === 'function') {
+            sprite.setInspirationFlag();
+          }
+        }
+      }
+    }
+  }
+
+  BattleManager.getProbability = function(skillInfo, targetEnemyInfo) {
     let maxDifficulty = null;
     let minDifficulty = null;
     let maxProbability = null;
     let minProbability = null;
     let probability = null;
 
+    const difficulty = skillInfo.difficulty - targetEnemyInfo.inspirationLevel;
+
     for (const inspirationDifficulty of params.inspirationDifficultys) {
-      if (targetEnemyData.difficulty === inspirationDifficulty.difficulty) {
+      if (difficulty === inspirationDifficulty.difficulty) {
         probability = inspirationDifficulty.probability;
         break;
       } else {
@@ -328,37 +378,48 @@
     }
 
     if (!probability) {
-      if (targetEnemyData.difficulty > maxDifficulty) {
+      if (difficulty > maxDifficulty) {
         probability = maxProbability;
       } else {
         probability = minProbability;
       }
     }
-
     return probability;
   };
 
+
+  //-----------------------------------------------------------------------------
+  // Game_BattlerBase
+  //-----------------------------------------------------------------------------
+
   const _Game_BattlerBase_PaySkillCost = Game_BattlerBase.prototype.paySkillCost
   Game_BattlerBase.prototype.paySkillCost = function(skill) {
-    if (skill.id !== inspirationSkill) {
+    if (!this.currentAction()._inspirationFlag) {
       _Game_BattlerBase_PaySkillCost.apply(this, arguments);
     }
   };
 
+
+  //-----------------------------------------------------------------------------
+  // Window_BattleLog
+  //-----------------------------------------------------------------------------
+
   const _Window_BattleLog_DisplayAction = Window_BattleLog.prototype.displayAction;
   Window_BattleLog.prototype.displayAction = function(subject, item) {
-    if (inspirationSkill > 0) {
+    if (subject.currentAction()._inspirationFlag) {
       AudioManager.playStaticSe(params.inspirationSe)
-      inspirationFlag = true;
       this._waitCount = 30;
       if (params.inspirationMessage) {
         this.displayItemMessage(params.inspirationMessage, subject, item);
       }
-      inspirationSkill = 0;
     }
     _Window_BattleLog_DisplayAction.apply(this, arguments);
   };
 
+
+  //-----------------------------------------------------------------------------
+  // Sprite_Actor
+  //-----------------------------------------------------------------------------
 
   const _Sprite_Actor_InitMembers = Sprite_Actor.prototype.initMembers;
   Sprite_Actor.prototype.initMembers = function() {
@@ -371,14 +432,10 @@
     this.addChild(this._inspirationSprite);
   };
 
-  const _Sprite_Actor_SetBattler = Sprite_Actor.prototype.setBattler;
-  Sprite_Actor.prototype.setBattler = function(battler) {
-    if (battler !== this._actor) {
-      this._inspirationSprite.setup(battler);
-    }
-    _Sprite_Actor_SetBattler.apply(this, arguments);
-  };
 
+  //-----------------------------------------------------------------------------
+  // Sprite_Inspiration
+  //-----------------------------------------------------------------------------
 
   function Sprite_Inspiration() {
     this.initialize(...arguments);
@@ -391,6 +448,7 @@
     Sprite.prototype.initialize.call(this);
     this.initMembers();
     this.loadBitmap();
+    this._inspirationFlag = false;
   };
 
   Sprite_Inspiration.prototype.initMembers = function() {
@@ -401,13 +459,13 @@
     this.anchor.y = 2.2;
   };
 
+  Sprite_Inspiration.prototype.setInspirationFlag = function() {
+    this._inspirationFlag = true;
+  }
+
   Sprite_Inspiration.prototype.loadBitmap = function() {
     this.bitmap = ImageManager.loadSystem("Balloon");
     this.setFrame(0, 0, 0, 0);
-  };
-
-  Sprite_Inspiration.prototype.setup = function(battler) {
-    this._battler = battler;
   };
 
   Sprite_Inspiration.prototype.update = function() {
@@ -425,7 +483,8 @@
   };
 
   Sprite_Inspiration.prototype.updatePattern = function() {
-    if (inspirationFlag && this._battler._actorId === inspirationActorId) {
+
+    if (this._inspirationFlag) {
       this._pattern++;
       this._pattern %= 8;
       this._inspirationIndex = 9;
@@ -443,8 +502,7 @@
         const sy = (this._inspirationIndex - 1) * h;
         this.setFrame(sx, sy, w, h);
         if (this._pattern === 7) {
-          inspirationFlag = false;
-          inspirationActorId = 0;
+          this._inspirationFlag = false;
         }
     } else {
         this.setFrame(0, 0, 0, 0);
