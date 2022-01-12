@@ -3,9 +3,9 @@
 //=============================================================================
 /*:ja
  * @target MZ
- * @plugindesc 閃きスキル機能を設定します。
+ * @plugindesc このプラグインは閃きスキル機能を提供します。
  * @author Basu
- * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/AlignmentSkill/AlignmentSkill.js
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/InspirationSkill/InspirationSkill.js
  *
  * @help InspirationSkill.js
  *
