@@ -139,3 +139,10 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/SkillPoint/SkillPoint.js</br
 ※習得可能スキルレベルをデフォルト(0)から1に変更した場合(スキルレベル0のスキルを全て習得している場合)</br>
 ![Image2](/SkillPoint/image/image2.png)　　![Image3](/SkillPoint/image/image3.png)</br>
 スキルレベル1で設定したスキルの習得が可能になります。</br>
+
+
+</br>
+</br>
+
+<B>■利用規約</B></br>
+このプラグインはMITライセンスで配布しています
