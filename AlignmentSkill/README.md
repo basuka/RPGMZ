@@ -128,3 +128,8 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/AlignmentSkill/AlignmentSkil
 
 ![Image2](/AlignmentSkill/image/image2.jpg)　　　　　　![Image3](/AlignmentSkill/image/image3.jpg)
 
+</br>
+</br>
+
+<B>■利用規約</B></br>
+このプラグインはMITライセンスで配布しています
