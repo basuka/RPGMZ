@@ -386,3 +386,10 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 
 ※イベントがキャラクターなどイベントとプレイヤーの座標が異なる場合(イベントとプレイヤーが重ならない場合)は</br>
 転移先を直接指定してください。
+
+
+</br>
+</br>
+
+<B>■利用規約</B></br>
+このプラグインはMITライセンスで配布しています
