@@ -5,7 +5,7 @@
  * @target MZ
  * @plugindesc 複数のスキルタイプのスキルを1つのウィンドウで表示します。
  * @author Basu
- * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/AlignmentSkill/AlignmentSkill.js
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/request/DisplaySkillTypes/DisplaySkillTypes.js
  *
  * @help DisplaySkillTypes.js
  *
