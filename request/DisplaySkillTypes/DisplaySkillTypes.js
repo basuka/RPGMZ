@@ -5,7 +5,7 @@
  * @target MZ
  * @plugindesc 複数のスキルタイプのスキルを1つのウィンドウで表示します。
  * @author Basu
- * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/request/DisplaySkillTypes/DisplaySkillTypes.js
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/AlignmentSkill/AlignmentSkill.js
  *
  * @help DisplaySkillTypes.js
  *
@@ -20,7 +20,12 @@
  *  　　習得スキルタイプの設定を行うアクターを設定します。
  *
  *  　【スキルタイプID】
- *     　習得スキルタイプを設定します。
+ *     　習得スキルタイプIDを設定します。
+ *
+ *  　【独立スキルタイプID】
+ *     　独立スキルタイプIDを設定します。
+ *       ここで設定されたスキルタイプは独立したスキルタイプとなり
+ *       他のスキルタイプのスキルは設定されなくなります。
  *
  *-----------------------------------------------------------------------------
  * 設定方法
@@ -48,6 +53,11 @@
  * @type number[]
  * @text スキルタイプID
  * @desc アクターが習得するスキルタイプIDの設定
+ *
+ * @param independenceSkillTypes
+ * @type number[]
+ * @text 独立スキルタイプID
+ * @desc 独立スキルタイプIDの設定
  *
  */
 
@@ -103,7 +113,7 @@
     let includes = _Window_SkillList_Includes.apply(this, arguments);
     if (!includes) {
       for (const skillTypeInfo of params.skillTypeInfos) {
-        if (skillTypeInfo.actorId === this._actor._actorId) {
+        if (skillTypeInfo.actorId === this._actor._actorId && !skillTypeInfo.independenceSkillTypes.includes(this._stypeId)) {
           includes = item && skillTypeInfo.skillTypes.includes(item.stypeId);
         }
       }
