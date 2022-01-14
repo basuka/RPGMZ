@@ -20,7 +20,10 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/FacePicture/FacePicture.js</
 　何番目の顔画像を表示するかを設定します。</br>
 
 </br>
+</br>
 
+※設定項目を設定後に、画像を設定しないまま「ピクチャ表示」イベントを行うとプラグインで設定した顔画像が表示されます。</br>
+　(使用方法は付属プラグイン「テキストピクチャの設定(TextPicture)」と同じです)</br>
 ![Image1](/FacePicture/image/image1.png)</br>
 
 
