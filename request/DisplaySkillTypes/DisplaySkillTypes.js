@@ -38,7 +38,6 @@
  * @param skillTypeInfos
  * @type struct<skillTypeInfos>[]
  * @text スキルタイプ情報
- * @parent setGainSkillPoint
  * @desc 習得するスキルタイプ情報の設定
  *
  */
