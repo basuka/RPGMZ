@@ -172,7 +172,7 @@
   Game_Action.prototype.changeStateRate = function(effect) {
     for (const changeStateRateInfo of params.changeStateRateInfos) {
       if (changeStateRateInfo.stateId === effect.dataId && this.isChangeStateRate(changeStateRateInfo)) {
-        const changeValue = changeStateRateInfo.changeRate / 100;
+        const changeValue = changeStateRateInfo.changeRate * 0.01;
         effect.value1 += changeValue;
         if (effect.value1 > 1) {
           effect.value1 = 1;
