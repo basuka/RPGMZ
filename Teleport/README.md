@@ -343,7 +343,7 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 基準座標は【転移先マップの種類】の選択により異なります。</br>
 </br>
 ・【転移先マップの種類】が「現在のマップ」の場合</br>
-　　テレポートの設定を行っているイベントの座標が基準座標になります。</br>
+　　テレポートの設定を行ったプレイヤーの座標が基準座標になります。</br>
 
 </br>
 
@@ -377,15 +377,7 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js</br>
 
 </br>
 
-3.【転移先マップの種類】または【転移先マップ名の種類】で「移動先のマップ」を設定している場合</br>
-【テレポートの設定】を行うイベントとプレイヤーが重なった場合、イベントを実行するようにしてください。</br>
-
-</br>
-
 ![Image38](/Teleport/image/image38.jpg)
-
-※イベントがキャラクターなどイベントとプレイヤーの座標が異なる場合(イベントとプレイヤーが重ならない場合)は</br>
-転移先を直接指定してください。
 
 
 </br>
