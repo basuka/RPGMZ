@@ -5,7 +5,6 @@
  * @target MZ
  * @plugindesc テレポート機能を設定します。
  * @author Basu
- * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/Teleport/Teleport.js
  *
  * @help Teleport.js
  *
@@ -149,14 +148,6 @@
  *   2.【テレポートの設定】はイベント実行内容の一番上に設定してください。
  *     (【テレポートの設定】を行う前にスイッチ操作などでイベントページが変わる場合、変更後のページ内容を参照してしまうため)
  *
- *   3.【転移先マップの種類】または【転移先マップ名の種類】で「移動先のマップ」を設定している場合
- *     【テレポートの設定】を行うイベントとプレイヤーが重なった場合、イベントを実行するようにしてください。
- *     (プレイヤーの位置にあるイベント情報を取得しているため)
- *
- *    ※イベントがキャラクターなどイベントとプレイヤーの座標が異なる場合(プレイヤーと重ならない場合)は
- *      転移先を直接指定してください。
- *
- *
  *-----------------------------------------------------------------------------
  * 設定方法
  *-----------------------------------------------------------------------------
@@ -169,13 +160,6 @@
  *
  * 4.必要に応じて「プラグインコマンド【テレポートの使用可否設定】」から、テレポートの
  *   使用可否を設定してください
- *
- *
- *-----------------------------------------------------------------------------
- * 利用規約
- *-----------------------------------------------------------------------------
- * このプラグインはMITライセンスで配布しています
- *
  *=====================================================================================================================================================
  *
  * @param teleportSkillId
@@ -308,9 +292,9 @@ $teleport = null;
 
   const pluginName = "Teleport";
 
-  PluginManager.registerCommand(pluginName, "setTeleport", inputTeleportData => {
+  PluginManager.registerCommand(pluginName, "setTeleport", function(inputTeleportData) {
      PluginManager_Parser.prototype.parse(inputTeleportData)
-     $teleport.setTeleport(inputTeleportData);
+     $teleport.setTeleport(inputTeleportData, this);
   });
 
   PluginManager.registerCommand(pluginName, "setUsePermission", inputTeleportData => {
@@ -379,11 +363,11 @@ $teleport = null;
   //-----------------------------------------------------------------------------
   // 入力された情報からテレポートの設定を行います
   //-----------------------------------------------------------------------------
-  Teleport.prototype.setTeleport = function (inputTeleportData) {
+  Teleport.prototype.setTeleport = function (inputTeleportData, interpreter) {
     if (inputTeleportData.moveMapType === 0) {
-      this.setCurrentMoveMapTypeData(inputTeleportData);
+      this.setCurrentMoveMapTypeData(inputTeleportData, interpreter);
     } else if (inputTeleportData.moveMapType === 1) {
-      this.setNextMoveMapTypeData(inputTeleportData);
+      this.setNextMoveMapTypeData(inputTeleportData, interpreter);
     } else {
       this.setInputTypeData(inputTeleportData);
     }
@@ -404,7 +388,7 @@ $teleport = null;
   //-----------------------------------------------------------------------------
   // テレポートによる転移先が現在のマップの場合の設定を行います
   //-----------------------------------------------------------------------------
-  Teleport.prototype.setCurrentMoveMapTypeData = function (inputTeleportData) {
+  Teleport.prototype.setCurrentMoveMapTypeData = function (inputTeleportData, interpreter) {
     // テレポート先のマップIDを現在のマップIDで設定
     const teleportMapId = $gameMap.mapId();
 
@@ -417,7 +401,7 @@ $teleport = null;
       // テレポートに登録するマップ名が転移先のマップ名の場合
 
       // 転移先のマップ情報の取得
-      const nextMoveMapData = this.getNextMoveMapData();
+      const nextMoveMapData = this.getNextMoveMapData(interpreter);
       if (!nextMoveMapData) {
         return;
       }
@@ -469,10 +453,10 @@ $teleport = null;
   //-----------------------------------------------------------------------------
   // テレポートによる転移先が移動先のマップの場合の設定を行います
   //-----------------------------------------------------------------------------
-  Teleport.prototype.setNextMoveMapTypeData = function (inputTeleportData) {
+  Teleport.prototype.setNextMoveMapTypeData = function (inputTeleportData, interpreter) {
 
     // 転移先のマップ情報の取得
-    const nextMoveMapData = this.getNextMoveMapData();
+    const nextMoveMapData = this.getNextMoveMapData(interpreter);
     if (!nextMoveMapData) {
       return;
     }
@@ -570,23 +554,20 @@ $teleport = null;
   //-----------------------------------------------------------------------------
   // 転移先マップデータの取得を行います
   //-----------------------------------------------------------------------------
-  Teleport.prototype.getNextMoveMapData = function () {
+  Teleport.prototype.getNextMoveMapData = function (interpreter) {
 
     let nextMoveMapData = null;
-    const eventId = $gameMap.eventIdXy($gamePlayer.x, $gamePlayer.y);
 
-    if (eventId) {
-      const event = $gameMap.event(eventId).page();
+    const event = $gameMap.event(interpreter.eventId()).page();
 
-      if (event) {
-        for (const key in event.list) {
-          const contents = event.list[key];
-          if (contents.code === 201) {
-            nextMoveMapData = {};
-            nextMoveMapData.mapId = contents.parameters[1];
-            nextMoveMapData.x = contents.parameters[2];
-            nextMoveMapData.y = contents.parameters[3];
-          }
+    if (event) {
+      for (const key in event.list) {
+        const contents = event.list[key];
+        if (contents.code === 201) {
+          nextMoveMapData = {};
+          nextMoveMapData.mapId = contents.parameters[1];
+          nextMoveMapData.x = contents.parameters[2];
+          nextMoveMapData.y = contents.parameters[3];
         }
       }
     }
@@ -1021,6 +1002,8 @@ $teleport = null;
   // テレポートスキルの動作
   //-----------------------------------------------------------------------------
   Scene_Map.prototype.teleportAction = function() {
+console.log(this)
+console.log($gameMap)
     const interpreter = $gameMap._interpreter;
     interpreter.setup($teleport.createTeleportAction(), -1);
     interpreter.executeCommand();
