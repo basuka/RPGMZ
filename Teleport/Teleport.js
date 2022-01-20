@@ -1178,7 +1178,7 @@ console.log($gameMap)
 
     // 再定義前のDataManager.makeSaveContents関数を呼び出し
     const contents = _DataManager_Make_Save_Contents.apply(this, arguments);
-    //contents.teleport = $teleport;
+    contents.teleport = $teleport;
     return contents;
   };
 
