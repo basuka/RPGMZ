@@ -1189,8 +1189,6 @@ console.log($gameMap)
   DataManager.extractSaveContents = function(contents) {
 
     for(const name in contents) {
-      console.log(contents[name]);
-      console.log(typeof contents[name]);
       if (contents[name].constructor.name === "Object" && contents[name]["@"]) {
         const obj = eval(contents[name]["@"]);
         Object.setPrototypeOf(contents[name], obj.prototype);
