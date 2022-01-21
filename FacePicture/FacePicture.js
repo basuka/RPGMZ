@@ -3,7 +3,7 @@
 //=============================================================================
 /*:ja
  * @target MZ
- * @plugindesc テキストをピクチャとして表示します。
+ * @plugindesc 顔画像をピクチャとして表示します。
  * @author Basu
  * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/FacePicture/FacePicture.js
  *
