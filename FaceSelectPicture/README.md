@@ -1,5 +1,5 @@
 顔画像をピクチャとして表示・選択機能を実装します。</br>
-顔画像をピクチャとして表示・選択を出来るようにします。
+顔画像をピクチャとして表示・選択が出来るようになります。
 
 【顔画像ピクチャ表示・選択プラグイン】</br>
 https://raw.githubusercontent.com/basuka/RPGMZ/main/FaceSelectPicture/FaceSelectPicture.js</br>
