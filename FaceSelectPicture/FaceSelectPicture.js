@@ -5,7 +5,7 @@
  * @target MZ
  * @plugindesc 顔画像をピクチャとして表示・選択を出来るようにします。
  * @author Basu
- * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/FacePicture/FacePicture.js
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/FaceSelectPicture/FaceSelectPicture.js
  *
  * @help FaceSelectPicture.js
  *
