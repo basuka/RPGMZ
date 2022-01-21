@@ -5,7 +5,7 @@
  * @target MZ
  * @plugindesc 顔画像をピクチャとして表示・選択を出来るようにします。
  * @author Basu
- * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/FaceSelectPicture/FaceSelectPicture.js
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/FacePicture/FacePicture.js
  *
  * @help FaceSelectPicture.js
  *
@@ -546,10 +546,10 @@
     if (this.visible && !this.bitmap) {
       this.destroyFacePictureBitmap(this.bitmap);
       this.bitmap = this.createFacePictureBitmap();
-      this.updateSelectFace();
     }
 
     if (!dispOnly) {
+      this.updateSelectFace();
       this.updateAction();
     }
   };
@@ -584,7 +584,7 @@
   }
 
   Sprite_FacePicture.prototype.updateSelectFace = function() {
-    if (!dispOnly) {
+    if (this._bitmap) {
       if (this._bitmap._selectIndex !== selectIndex && this._bitmap._selectFace) {
         const nonSelectColor = [-68,-68,-68,0]
         $gameScreen.tintPicture(this._pictureId, nonSelectColor, 0);
@@ -665,7 +665,11 @@
     if (!facePictureEvent.isRunning()) {
       if (this._bitmap._selectIndex !== selectIndex) {
         selectIndex = this._bitmap._selectIndex;
+        if (cursorSe) {
+          SoundManager.playCursor();
+        }
       } else {
+        SoundManager.playOk();
         facePictureEvent.setupEvent(this._bitmap._selectOkEventPage, true);
       }
     }
@@ -674,10 +678,12 @@
   Sprite_FacePicture.prototype.onKey = function() {
     if (this._bitmap._selectFace) {
       if (Input.isRepeated("ok")) {
+        SoundManager.playOk();
         facePictureEvent.setupEvent(this._bitmap._selectOkEventPage, true);
       }
       if (Input.isRepeated("cancel")) {
         if (cancel) {
+          SoundManager.playCancel();
           endPicture = true;
           interpreter.wait(Input.keyRepeatWait);
         }
