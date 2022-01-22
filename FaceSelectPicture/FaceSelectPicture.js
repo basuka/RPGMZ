@@ -90,7 +90,7 @@
  *         ※プラグインを設定している同じイベントのページを実行します。
  *
  *       ・決定イベントページ
- *         画像決定時に実行するイベントページを設定します。
+ *         画像確定時に実行するイベントページを設定します。
  *         選択している画像を決定すると設定しているイベントページのイベントを実行します。
  *         不要の場合は省略してください。
  *         ※プラグインを設定している同じイベントのページを実行します。
@@ -547,10 +547,10 @@
     if (this.visible && !this.bitmap) {
       this.destroyFacePictureBitmap(this.bitmap);
       this.bitmap = this.createFacePictureBitmap();
+      this.updateSelectFace();
     }
 
     if (!dispOnly) {
-      this.updateSelectFace();
       this.updateAction();
     }
   };
