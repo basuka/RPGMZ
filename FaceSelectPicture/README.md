@@ -51,6 +51,7 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/FaceSelectPicture/FaceSelect
 　■【選択順】</br>
 　顔画像を選択する順番を設定します。</br>
 　方向キーで顔画像を選択する際、ここで設定した順にカーソルが選択されます。</br>
+　画像をクリックした場合はクリックした画像が直接選択されます。</br>
 
 </br>
 
