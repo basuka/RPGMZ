@@ -71,7 +71,7 @@
  * @param allSelectFileName
  * @text 全種類アイコン画像
  * @type file
- * @dir img/faces/
+ * @dir img/system/
  * @default IconSet
  * @desc 全種類用にするアイコンファイルを設定
  *
