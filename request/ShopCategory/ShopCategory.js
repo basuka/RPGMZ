@@ -5,6 +5,7 @@
  * @target MZ
  * @plugindesc カテゴリー別ショップ機能を設定します。
  * @author Basu
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/request/ShopCategory/ShopCategory.js
  *
  * @help ShopCategory.js
  *
