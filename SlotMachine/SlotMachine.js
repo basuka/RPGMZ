@@ -22,7 +22,7 @@
  * 3.必要に応じてパラメータ及びコマンドパラメータを設定してください。
  *
  *
- *　※本プラグインはMV用に用意された準公式プラグインを基にMZ用に作成されたものです。
+ *　※本プラグインはMV用に用意された準公式プラグインをMZ用に作成されたものです。
  *
  *  本家作成者：KADOKAWA CORPORATION　YOJI OJIMA氏
  *  URL : https://tkool.jp/mv/special/tkool-mv-update-1.html
