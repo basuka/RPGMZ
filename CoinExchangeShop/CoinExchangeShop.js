@@ -5,7 +5,7 @@
  * @target MZ
  * @plugindesc コイン交換ショップを設定します。
  * @author Basu
- * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/AlignmentSkill/AlignmentSkill.js
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/CoinExchangeShop/CoinExchangeShop.js
  *
  * @help CoinExchangeShop.js
  *
