@@ -1,7 +1,7 @@
 コインショップ機能を実装します。</br>
 スロットなどミニゲームで必要なコインを購入することが出来るようになります。</br>
 
-【コイン交換ショップ】</br>
+【コインショップ】</br>
 https://raw.githubusercontent.com/basuka/RPGMZ/main/CoinShop/CoinShop.js</br>
 
 </br>
