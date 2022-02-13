@@ -300,9 +300,7 @@
             return this._scale;
         },
         set: function(value) {
-            if (!this._scale) {
-                this._scale = value;
-            }
+            this._scale = value;
         },
     });
 
