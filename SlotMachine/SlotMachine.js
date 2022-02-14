@@ -1864,6 +1864,6 @@
     }
 
     Scene_SlotMachine.prototype.isEnoughCoin = function() {
-        return SlotMachine.coin > SlotMachine.scale;
+        return SlotMachine.coin >= SlotMachine.scale;
     }
 })();
