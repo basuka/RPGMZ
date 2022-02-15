@@ -27,7 +27,7 @@
  * @text バトルアイテム最小数
  * @type number
  * @default 10
- * @desc 設定できるバトルアイテムの最大数
+ * @desc 設定するバトルアイテムの最小数
  *
  * @param initBattleItemIds
  * @text 初期バトルアイテム
