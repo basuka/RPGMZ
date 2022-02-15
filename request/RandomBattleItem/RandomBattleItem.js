@@ -523,7 +523,7 @@
     };
 
     Window_SetItemList.prototype.isEnabled = function(item) {
-        return true;
+        return item ? true : false;
     };
 
     Window_SetItemList.prototype.processCancel = function() {
@@ -599,10 +599,10 @@
     };
 
     Window_SetBattleItemList.prototype.checkMaxRegItem = function(item) {
-        if (RandomBattleItem.maxRegItems) {
+        if (item && RandomBattleItem.maxRegItems) {
             const maxRegItem = RandomBattleItem.maxRegItems.filter(maxRegItem => maxRegItem.itemId === item.id)[0];
             if (maxRegItem) {
-                const regItems = this._data.filter(regItem => regItem.id === item.id);
+                const regItems = this._data.filter(regItem => regItem && regItem.id === item.id);
                 return regItems.length < maxRegItem.maxReg;
             }
         }
@@ -656,7 +656,7 @@
     };
 
     Window_SetBattleItemList.prototype.isEnabled = function(item) {
-        return true;
+        return item ? true : false;
     };
 
     Window_SetBattleItemList.prototype.processCancel = function() {
