@@ -166,6 +166,10 @@
         },
     });
 
+    RandomBattleItem.isBattleOccasion = function(item) {
+        return item.occasion === 0 || item.occasion === 1;
+    }
+
 
     //-----------------------------------------------------------------------------
     // Game_RandomBattleItem
@@ -221,7 +225,7 @@
     }
 
     Game_RandomBattleItem.prototype.isBattleItem = function(item) {
-        return this._viewBattleItems.includes(item);
+        return this._viewBattleItems.includes(item) || RandomBattleItem.isBattleOccasion(item);
     }
 
 
@@ -437,14 +441,10 @@
     };
 
     Window_SetItemList.prototype.makeItemList = function() {
-        this._data = $gameParty.allItems().filter(item => this.includes(item) && this.isBattleOccasion(item));
+        this._data = $gameParty.allItems().filter(item => this.includes(item) && RandomBattleItem.isBattleOccasion(item));
         if (this.includes(null)) {
             this._data.push(null);
         }
-    };
-
-    Window_SetItemList.prototype.isBattleOccasion = function(item) {
-        return item.occasion === 0 || item.occasion === 1;
     };
 
     Window_SetItemList.prototype.changePaintSetItem = function(item) {
@@ -520,6 +520,10 @@
 
     Window_SetItemList.prototype.updateHelp = function() {
         this.setHelpWindowItem(this.item());
+    };
+
+    Window_SetItemList.prototype.isEnabled = function(item) {
+        return true;
     };
 
     Window_SetItemList.prototype.processCancel = function() {
@@ -683,7 +687,7 @@
 
         if (length < RandomBattleItem.minBattleItem) {
             for (const data of dataList) {
-                if (data.occasion === 0 || data.occasion === 1) {
+                if (RandomBattleItem.isBattleOccasion(data)) {
                     length += $gameParty.numItems(data);
                     if (length >= RandomBattleItem.minBattleItem) {
                         return true;
