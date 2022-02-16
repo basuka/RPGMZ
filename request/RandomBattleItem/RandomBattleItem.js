@@ -62,6 +62,16 @@
  * @type struct<changeView>[]
  * @desc 表示アイテム数を変更する装備・ステートの設定
  *
+ * @param reloadItemId
+ * @text リロードアイテム
+ * @type item
+ * @desc 強制リロードを行うアイテム
+ *
+ * @param reloadSkillId
+ * @text リロードスキル
+ * @type skill
+ * @desc 強制リロードを行うスキル
+ *
  * @param setItemCommand
  * @text バトルアイテム設定コマンド
  * @type text
@@ -236,6 +246,12 @@
         changeViewItems: {
             value: params.changeViewItems
         },
+        reloadItemId: {
+            value: params.reloadItemId
+        },
+        reloadSkillId: {
+            value: params.reloadSkillId
+        },
         setItemCommand: {
             value: params.setItemCommand
         },
@@ -276,17 +292,15 @@
     };
 
     Game_RandomBattleItem.prototype.setBattleItems = function(battleItemdatas) {
-        const battleItems = [];
         while (battleItemdatas.length) {
             const itemIndex = Math.floor(Math.random() * battleItemdatas.length);
-            battleItems.push(battleItemdatas[itemIndex]);
+            this._battleItems.push(battleItemdatas[itemIndex]);
             battleItemdatas.splice(itemIndex, 1);
         }
-        this._battleItems = battleItems;
     }
 
     Game_RandomBattleItem.prototype.setViewBattleItems = function() {
-        if (!this._battleItems.length) {
+        if (this._battleItems.length < RandomBattleItem.viewBattleItem) {
             this.setBattleItems(this._useItemLists);
         }
 
@@ -295,6 +309,11 @@
             this._viewBattleItems.push(this._battleItems[0]);
             this._battleItems.shift();
         }
+    }
+
+    Game_RandomBattleItem.prototype.reloadItem = function() {
+        this._viewBattleItems = [];
+        this.setViewBattleItems();
     }
 
     Game_RandomBattleItem.prototype.changeNum = function() {
@@ -900,6 +919,20 @@
     Game_Action.prototype.selectItemIndex = function() {
         return this._selectItemIndex;
     };
+
+    const _Game_Action_ApplyItemEffect = Game_Action.prototype.applyItemEffect;
+    Game_Action.prototype.applyItemEffect = function(target, effect) {
+        _Game_Action_ApplyItemEffect.apply(this, arguments);
+
+        if ((this.isItem() && RandomBattleItem.reloadItemId === this.item().id) ||
+            (this.isSkill() && RandomBattleItem.reloadSkillId === this.item().id)) {
+            this.reloadItem();
+        }
+    };
+
+    Game_Action.prototype.reloadItem = function() {
+        gameRandomBattleItem.reloadItem();
+    }
 
 
     //-----------------------------------------------------------------------------
