@@ -52,6 +52,16 @@
  * @type struct<maxRegItem>[]
  * @desc 同一アイテムの最大登録数
  *
+ * @param maxGroupRegItems
+ * @text グループアイテム最大登録数
+ * @type struct<maxGroupRegItems>[]
+ * @desc グループアイテムの最大登録数
+ *
+ * @param changeViewItems
+ * @text 表示アイテム数変更
+ * @type struct<changeView>[]
+ * @desc 表示アイテム数を変更する装備・ステートの設定
+ *
  * @param setItemCommand
  * @text バトルアイテム設定コマンド
  * @type text
@@ -78,6 +88,58 @@
  * @text 最大登録数
  * @type number
  * @desc 登録できる最大数
+ */
+
+/*~struct~maxGroupRegItems:ja
+ *
+ * @param groupItemIds
+ * @text アイテム
+ * @type item[]
+ * @desc グループにするアイテム
+ *
+ * @param maxGroupReg
+ * @text 最大登録数
+ * @type number
+ * @desc グループで登録できる最大数
+ */
+
+/*~struct~changeView:ja
+ * @param changeViewType
+ * @text 変更タイプ
+ * @type select
+ * @option 武器
+ * @value 0
+ * @option 防具
+ * @value 1
+ * @option ステート
+ * @value 2
+ * @desc 表示アイテム数の変更タイプ
+ *
+ * @param weaponId
+ * @text 武器
+ * @type weapon
+ * @desc 表示アイテム数を変更する武器
+ *       変更タイプで武器を選択した場合有効
+ *
+ * @param armorId
+ * @text 防具
+ * @type armor
+ * @desc 表示アイテム数を変更する防具
+ *       変更タイプで防具を選択した場合有効
+ *
+ * @param stateId
+ * @text ステート
+ * @type state
+ * @desc 表示アイテム数を変更するステート
+ *       変更タイプでステートを選択した場合有効
+ *
+ * @param changeNum
+ * @text 変更値
+ * @type number
+ * @min -9999
+ * @max 9999
+ * @desc 変更する表示アイテム数の増減値
+ *
  */
 
 
@@ -127,6 +189,25 @@
 
 
     //-----------------------------------------------------------------------------
+    // SlotStatus
+    //-----------------------------------------------------------------------------
+    function ChangeViewType() {
+        throw new Error("This is a static class");
+    }
+
+    Object.defineProperties(ChangeViewType, {
+        weapon: {
+            value: 0
+        },
+        armor: {
+            value: 1
+        },
+        stateId: {
+            value: 2
+        }
+    });
+
+    //-----------------------------------------------------------------------------
     // RandomBattleItem
     //-----------------------------------------------------------------------------
     function RandomBattleItem() {
@@ -148,6 +229,12 @@
         },
         maxRegItems: {
             value: params.maxRegItems
+        },
+        maxGroupRegItems: {
+            value: params.maxGroupRegItems
+        },
+        changeViewItems: {
+            value: params.changeViewItems
         },
         setItemCommand: {
             value: params.setItemCommand
@@ -202,17 +289,76 @@
         if (!this._battleItems.length) {
             this.setBattleItems(this._useItemLists);
         }
-        for (let index = this._viewBattleItems.length; index < RandomBattleItem.viewBattleItem; ++index) {
+
+        const changeNum = this.changeNum();
+        for (let index = this._viewBattleItems.length; index < RandomBattleItem.viewBattleItem + changeNum; ++index) {
             this._viewBattleItems.push(this._battleItems[0]);
             this._battleItems.shift();
         }
+    }
+
+    Game_RandomBattleItem.prototype.changeNum = function() {
+        let changeNum = 0;
+
+        for (const changeViewItem of RandomBattleItem.changeViewItems) {
+            if (changeViewItem.changeViewType === ChangeViewType.weapon) {
+                changeNum += this.getWeaponTypeChangeNum(changeViewItem);
+            } else if (changeViewItem.changeViewType === ChangeViewType.armor) {
+                changeNum += this.getArmorTypeChangeNum(changeViewItem);
+            } else {
+                changeNum += this.getStateTypeChangeNum(changeViewItem);
+            }
+        }
+
+        return changeNum;
+    }
+
+    Game_RandomBattleItem.prototype.getWeaponTypeChangeNum = function(changeViewItem) {
+        let changeNum = 0;
+        const weaponId = changeViewItem.weaponId;
+        const weapon = $dataWeapons[weaponId];
+        if (weapon) {
+            for (const actor of $gameParty.members()) {
+                if (actor && actor.hasWeapon(weapon)) {
+                    changeNum += changeViewItem.changeNum;
+                }
+            }
+        }
+        return changeNum;
+    }
+
+    Game_RandomBattleItem.prototype.getArmorTypeChangeNum = function(changeViewItem) {
+        let changeNum = 0;
+        const armorId = changeViewItem.armorId;
+        const armor = $dataArmors[armorId];
+        if (armor) {
+            for (const actor of $gameParty.members()) {
+                if (actor.hasArmor(armor)) {
+                    changeNum += changeViewItem.changeNum;
+                }
+            }
+        }
+        return changeNum;
+    }
+
+    Game_RandomBattleItem.prototype.getStateTypeChangeNum = function(changeViewItem) {
+        let changeNum = 0;
+        const stateId = changeViewItem.stateId;
+        const state = $dataStates[stateId];
+        if (state) {
+            for (const actor of $gameParty.members()) {
+                if (actor.isStateAffected(state.id)) {
+                    changeNum += changeViewItem.changeNum;
+                }
+            }
+        }
+        return changeNum;
     }
 
     Game_RandomBattleItem.prototype.useBattleItem = function(itemIndex) {
         if (itemIndex >= 0) {
             this._useItemLists.push(this._viewBattleItems[itemIndex]);
             this._viewBattleItems.splice(itemIndex, 1);
-            this.setViewBattleItems();
         }
     }
 
@@ -591,10 +737,10 @@
     };
 
     Window_SetBattleItemList.prototype.isSetPossible = function(item) {
-        return this.checkMaxBattleItem(item) && this.checkMaxRegItem(item);
+        return this.checkMaxBattleItem() && this.checkMaxRegItem(item) && this.checkMaxGroupRegItem(item);
     };
 
-    Window_SetBattleItemList.prototype.checkMaxBattleItem = function(item) {
+    Window_SetBattleItemList.prototype.checkMaxBattleItem = function() {
         return this._data.length < RandomBattleItem.maxBattleItem;
     };
 
@@ -604,6 +750,25 @@
             if (maxRegItem) {
                 const regItems = this._data.filter(regItem => regItem && regItem.id === item.id);
                 return regItems.length < maxRegItem.maxReg;
+            }
+        }
+        return true
+    };
+
+    Window_SetBattleItemList.prototype.checkMaxGroupRegItem = function(item) {
+        if (item && RandomBattleItem.maxGroupRegItems) {
+            for (const maxGroupRegItems of RandomBattleItem.maxGroupRegItems) {
+                const groupItemIds = maxGroupRegItems.groupItemIds;
+                if (groupItemIds.includes(item.id)) {
+                    let reg = 0;
+                    for (const groupItemId of groupItemIds) {
+                        const regItems = this._data.filter(regItem => regItem && regItem.id === groupItemId);
+                        reg += regItems.length;
+                    }
+                    if (reg >= maxGroupRegItems.maxGroupReg) {
+                        return false;
+                    }
+                }
             }
         }
         return true
@@ -781,6 +946,7 @@
     //-----------------------------------------------------------------------------
     Window_BattleItem.prototype.makeItemList = function() {
         const battleItems = $gameParty.getBattleItems();
+        gameRandomBattleItem.setViewBattleItems();
         this._data = gameRandomBattleItem.viewBattleItems().filter(item => this.includes(item) && battleItems.length >= RandomBattleItem.minBattleItem);
         if (this.includes(null)) {
             this._data.push(null);
@@ -797,16 +963,6 @@
             this.changePaintOpacity(1);
         }
     };
-
-    Window_BattleItem.prototype.setViewBattleItems = function() {
-        if (!gameRandomBattleItem.getBattleItems().length) {
-            gameRandomBattleItem.setBattleItems(gameRandomBattleItem.useItemLists());
-        }
-        for (let index = gameRandomBattleItem.viewBattleItems().length; index <= RandomBattleItem.viewBattleItem; ++index) {
-            this._viewBattleItems.push(this._battleItems[0]);
-            this._battleItems.shift();
-        }
-    }
 
     Window_BattleItem.prototype.selectLast = function() {
         const index = RandomBattleItem.lastSelect;
