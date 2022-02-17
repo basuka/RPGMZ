@@ -312,6 +312,7 @@
     }
 
     Game_RandomBattleItem.prototype.reloadItem = function() {
+        this._useItemLists = this._useItemLists.concat(this._viewBattleItems);
         this._viewBattleItems = [];
         this.setViewBattleItems();
     }
@@ -888,13 +889,11 @@
     //-----------------------------------------------------------------------------
     // BattleManager
     //-----------------------------------------------------------------------------
-    const _BattleManager_StartAction = BattleManager.startAction;
-    BattleManager.startAction = function() {
-        _BattleManager_StartAction.apply(this, arguments);
-        const subject = this._subject;
-        const action = subject.currentAction();
-        gameRandomBattleItem.useBattleItem(action.selectItemIndex());
-    };
+    const _BattleManager_UpdateAction = BattleManager.updateAction;
+    BattleManager.updateAction = function() {
+        _BattleManager_UpdateAction.apply(this, arguments);
+        this._action.reloadItem();
+    }
 
 
     //-----------------------------------------------------------------------------
@@ -920,19 +919,12 @@
         return this._selectItemIndex;
     };
 
-    const _Game_Action_ApplyItemEffect = Game_Action.prototype.applyItemEffect;
-    Game_Action.prototype.applyItemEffect = function(target, effect) {
-        _Game_Action_ApplyItemEffect.apply(this, arguments);
-
+    Game_Action.prototype.reloadItem = function() {
         if ((this.isItem() && RandomBattleItem.reloadItemId === this.item().id) ||
             (this.isSkill() && RandomBattleItem.reloadSkillId === this.item().id)) {
-            this.reloadItem();
+            gameRandomBattleItem.reloadItem();
         }
     };
-
-    Game_Action.prototype.reloadItem = function() {
-        gameRandomBattleItem.reloadItem();
-    }
 
 
     //-----------------------------------------------------------------------------
@@ -947,7 +939,10 @@
     // Game_Battler
     //-----------------------------------------------------------------------------
     Game_Battler.prototype.consumeItem = function(item) {
-        return;
+        if (DataManager.isItem(item)) {
+            const action = this.currentAction();
+            gameRandomBattleItem.useBattleItem(action.selectItemIndex());
+        }
     };
 
 
