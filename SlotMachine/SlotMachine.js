@@ -291,6 +291,10 @@
         return 45;
     };
 
+    SlotMachine.maxCoin = function() {
+        return 99999999;
+    };
+
     SlotMachine.uiAreaHeight = function() {
         return $dataSystem.advanced.uiAreaHeight;
     };
@@ -413,10 +417,10 @@
         const height = size * 4;
         const slotMachineFrameWindowBitmap = this.createFrameSpriteWindow(0, 0, width, height);
 
-        this._slotMachineFrameSpriteWindow = new Sprite_SlotScaleTable(slotMachineFrameWindowBitmap, this.createSpriteWindow);
-        this._slotMachineFrameSpriteWindow.x = size;
-        this._slotMachineFrameSpriteWindow.y = size * 0.5;
-        this.addChild(this._slotMachineFrameSpriteWindow);
+        this._slotScaleTable = new Sprite_SlotScaleTable(slotMachineFrameWindowBitmap, this.createSpriteWindow);
+        this._slotScaleTable.x = size;
+        this._slotScaleTable.y = size * 0.5;
+        this.addChild(this._slotScaleTable);
     };
 
     Sprite_SlotMachine.prototype.createSlotSpriteWindow = function() {
@@ -498,7 +502,7 @@
     };
 
     Sprite_SlotMachine.prototype.getSlotIconInfos = function() {
-        return this._slotMachineFrameSpriteWindow.getSlotIconInfos();
+        return this._slotScaleTable.getSlotIconInfos();
     };
 
     Sprite_SlotMachine.prototype.getSlotSpriteFrameWindow = function() {
@@ -1841,7 +1845,10 @@
         winCoin += this.getWinCoin(mainSubjectIconInfo3, judgeCount3);
 
         if (winCoin > 0) {
-            SlotMachine.coin += winCoin;
+            SlotMachine.coin += winCoin
+            if (SlotMachine.coin >= SlotMachine.maxCoin()) {
+                SlotMachine.coin = SlotMachine.maxCoin();
+            }
         }
         return winCoin;
     }
