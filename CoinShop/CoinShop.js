@@ -5,7 +5,7 @@
  * @target MZ
  * @plugindesc コインショップを設定します。
  * @author Basu
- * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/CoinShop/CoinShop.js
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/AlignmentSkill/AlignmentSkill.js
  *
  * @help CoinShop.js
  *
@@ -120,6 +120,10 @@
     function CoinShop() {
         throw new Error("This is a static class");
     }
+
+    CoinShop.maxCoin = function() {
+        return 99999999;
+    };
 
     Object.defineProperties(CoinShop, {
         buyMessage: {
@@ -249,7 +253,7 @@
     };
 
     Scene_CoinShop.prototype.buyCoin = function() {
-        if (this.price() > Window_Gold.prototype.value()) {
+        if (this.price() > Window_Gold.prototype.value() || this.isOverCoin()) {
             SoundManager.playBuzzer();
         } else if (this.price() > 0) {
             SoundManager.playShop();
@@ -260,16 +264,21 @@
         this._coinBuyCommandWindow.activate();
     };
 
+    Scene_CoinShop.prototype.isOverCoin = function() {
+        const buyCoin = CoinShop.coin + this.coin();
+        return buyCoin >= CoinShop.maxCoin();
+    }
+
     Scene_CoinShop.prototype.initWindow = function() {
         this._coinBuyCommandWindow.initInfo();
         this._priceWindow.initInfo();
     };
 
     Scene_CoinShop.prototype.refresh = function() {
-      this._goldWindow.refresh();
-      this._coinWindow.refresh();
-      this._priceWindow.refresh();
-      this._coinBuyCommandWindow.refresh();
+        this._goldWindow.refresh();
+        this._coinWindow.refresh();
+        this._priceWindow.refresh();
+        this._coinBuyCommandWindow.refresh();
     };
 
     Scene_CoinShop.prototype.doBuy = function(number) {
@@ -369,9 +378,27 @@
         }
 
         this._coinNums.reverse();
-
         this._coin = buyCoin;
         this._priceWindow.setPrice(calcPrice);
+
+        if (this._coin + CoinShop.coin > CoinShop.maxCoin()) {
+            this.refresh();
+        }
+    };
+
+    Window_CoinBuyCommand.prototype.drawItem = function(index) {
+        const rect = this.itemLineRect(index);
+        const align = this.itemTextAlign();
+        this.resetTextColor();
+        this.setChangeTextColor();
+        this.changePaintOpacity(this.isCommandEnabled(index));
+        this.drawText(this.commandName(index), rect.x, rect.y, rect.width, align);
+    };
+
+    Window_CoinBuyCommand.prototype.setChangeTextColor = function() {
+        if (this._coin + CoinShop.coin > CoinShop.maxCoin()) {
+            this.changeTextColor("#ff0000");
+        }
     };
 
     Window_CoinBuyCommand.prototype.setPriceWindow = function(priceWindow) {
@@ -380,6 +407,12 @@
 
     Window_CoinBuyCommand.prototype.coin = function() {
         return this._coin;
+    };
+
+    Window_CoinBuyCommand.prototype.processOk = function() {
+        this.updateInputData();
+        this.deactivate();
+        this.callOkHandler();
     };
 
 
