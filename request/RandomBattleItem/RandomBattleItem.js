@@ -3,6 +3,7 @@
 //=============================================================================
 /*:ja
  * @target MZ
+ * @base PluginCommonBase
  * @plugindesc ランダムバトルアイテムを設定します。
  * @author Basu
  * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/request/RandomBattleItem/RandomBattleItem.js
@@ -12,9 +13,18 @@
  *-----------------------------------------------------------------------------
  * 設定方法
  *-----------------------------------------------------------------------------
- * 1.「プラグインマネージャー(プラグイン管理)」に、本プラグインを追加してください
+ * 1.「プラグインマネージャー(プラグイン管理)」に、「MAT_artifactItem」プラグイン(まっつＵＰ氏作成)を追加してください
+ * ※「MAT_artifactItem」プラグインがない場合はエラーが発生します。
+ *   また、「MAT_artifactItem」プラグインより先に本プラグインを追加した場合はアイテム使用時のMP/TPが２重で消費されるなど正常に動作しなくなります。
  *
- * 2.必要に応じてパラメータを設定してください。
+ * 2.「プラグインマネージャー(プラグイン管理)」に、本プラグインを追加してください
+ *
+ * 3.必要に応じてパラメータを設定してください。
+ *
+ * ※　本プラグインは単体で動かすことを前提とし、他プラグインとの掛け合わせは考慮されていません。
+ *    その為、「MAT_artifactItem」プラグインとの掛け合わせをを強引に行っている関係上予期せぬ動きが発生する可能性があります。
+ *    また、掛け合わせを強引に行っている関係上「MAT_artifactItem」プラグインの一部のパラメータ(includesfixなど)は無効となり
+ *    設定を行っても反映されません。
  *
  *-----------------------------------------------------------------------------
  * 利用規約
@@ -306,8 +316,10 @@
 
         const changeNum = this.changeNum();
         for (let index = this._viewBattleItems.length; index < RandomBattleItem.viewBattleItem + changeNum; ++index) {
-            this._viewBattleItems.push(this._battleItems[0]);
-            this._battleItems.shift();
+            if (this._battleItems.length) {
+                this._viewBattleItems.push(this._battleItems[0]);
+                this._battleItems.shift();
+            }
         }
     }
 
@@ -382,16 +394,12 @@
         }
     }
 
-    Game_RandomBattleItem.prototype.viewBattleItems = function(itemIndex) {
-        return this._viewBattleItems;
-    }
-
-    Game_RandomBattleItem.prototype.viewBattleItems = function(itemIndex) {
+    Game_RandomBattleItem.prototype.viewBattleItems = function() {
         return this._viewBattleItems;
     }
 
     Game_RandomBattleItem.prototype.isBattleItem = function(item) {
-        return this._viewBattleItems.includes(item) || RandomBattleItem.isBattleOccasion(item);
+        return item && (this._viewBattleItems.includes(item) || RandomBattleItem.isBattleOccasion(item));
     }
 
 
@@ -935,6 +943,8 @@
     };
 
 
+
+
     //-----------------------------------------------------------------------------
     // Game_Battler
     //-----------------------------------------------------------------------------
@@ -942,6 +952,7 @@
         if (DataManager.isItem(item)) {
             const action = this.currentAction();
             gameRandomBattleItem.useBattleItem(action.selectItemIndex());
+            this.payitemCost(item);
         }
     };
 
@@ -949,11 +960,16 @@
     //-----------------------------------------------------------------------------
     // Scene_Battle
     //-----------------------------------------------------------------------------
+    const _Scene_Battle_Initialize = Scene_Battle.prototype.initialize;
+    Scene_Battle.prototype.initialize = function() {
+        _Scene_Battle_Initialize.apply(this, arguments);
+        gameRandomBattleItem = new Game_RandomBattleItem();
+    };
+
     const _Scene_Battle_Start = Scene_Battle.prototype.start;
     Scene_Battle.prototype.start = function() {
         _Scene_Battle_Start.apply(this, arguments);
         const battleItems = $gameParty.getBattleItems();
-        gameRandomBattleItem = new Game_RandomBattleItem();
         gameRandomBattleItem.setBattleItems(battleItems);
         gameRandomBattleItem.setViewBattleItems();
     };
@@ -988,12 +1004,41 @@
             const rect = this.itemLineRect(index);
             this.changePaintOpacity(this.isEnabled(item));
             this.drawItemName(item, rect.x, rect.y, rect.width - numberWidth);
+            this.drawItemCost(item, rect.x, rect.y, rect.width);
             this.changePaintOpacity(1);
         }
+    };
+
+    Window_BattleItem.prototype.drawItemCost = function(item, x, y, width) {
+        const actor = this.usecostactor();
+        if (!actor) return;
+        const mpcost = actor.itemMpCost(item);
+        const tpcost = actor.itemTpCost(item);
+        const drawcost = (mpcost || tpcost || 0);
+        if (mpcost > 0) {
+            this.changeTextColor(ColorManager.mpCostColor());
+        } else if (tpcost > 0) {
+            this.changeTextColor(ColorManager.tpCostColor());
+        }
+        if (drawcost > 0) {
+            this.drawText(String(drawcost), x, y, width, "right");
+        }
+        this.resetTextColor();
     };
 
     Window_BattleItem.prototype.selectLast = function() {
         const index = RandomBattleItem.lastSelect;
         this.forceSelect(index >= 0 ? index : 0);
     };
+
+    const aliasmeetsItemConditions = Game_BattlerBase.prototype.meetsItemConditions;
+    Game_BattlerBase.prototype.meetsItemConditions = function(item) {
+        const def = aliasmeetsItemConditions.call(this, item);
+        return def && this.canPayitemCost(item);
+    };
+
+    Window_BattleItem.prototype.includes = function(item) {
+        return gameRandomBattleItem.isBattleItem(item) || this.artifactincludes(item);
+    };
+
 })();
