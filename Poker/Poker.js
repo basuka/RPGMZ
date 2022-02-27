@@ -35,7 +35,7 @@
  *
  * @param variableID
  * @text 保管ID
- * @type number
+ * @type variable
  * @default 11
  * @desc 所持コインの数を保管する変数ID
  *
