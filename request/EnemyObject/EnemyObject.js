@@ -5,7 +5,7 @@
  * @target MZ
  * @plugindesc エネミーをオブジェクトとして表示します。
  * @author Basu
- * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/EnemyObject/EnemyObject.js
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/request/EnemyObject/EnemyObject.js
  *
  * @help EnemyObject.js
  *
@@ -22,7 +22,7 @@
  *-----------------------------------------------------------------------------
  * README
  *-----------------------------------------------------------------------------
- * https://github.com/basuka/RPGMZ/blob/main/EnemyObject/README.md
+ * https://github.com/basuka/RPGMZ/blob/main/request/EnemyObject/README.md
  *
  *-----------------------------------------------------------------------------
  * 利用規約
@@ -33,7 +33,7 @@
  *
  * @param enemyObjects
  * @type struct<enemyObject>[]
- * @text オブジェクトエネミー
+ * @text オブジェクトエネミー設定
  * @desc オブジェクト表示にするエネミーの設定
  */
 
@@ -55,16 +55,18 @@
  * @param objEnemyFile
  * @type file
  * @dir img\enemies
- * @text オブジェクトエネミー
- * @desc オブジェクトにするエネミー画像
+ * @text オブジェクトエネミーファイル
+ * @desc オブジェクトにするエネミー画像ファイル
  *
  * @param drawX
  * @type number
+ * @default 0
  * @text 描画位置X
  * @desc 描画するX座標
  *
  * @param drawY
  * @type number
+ * @default 0
  * @text 描画位置Y
  * @desc 描画するY座標
  *
