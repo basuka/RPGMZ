@@ -31,60 +31,10 @@
  *
  *=====================================================================================================================================================
  *
- * @param enemyObjects
- * @type struct<enemyObject>[]
- * @text オブジェクトエネミー設定
- * @desc オブジェクト表示にするエネミーの設定
- */
-
-/*~struct~enemyObject:ja
- *
- * @param troopId
- * @type troop
- * @text 敵グループ
- * @desc オブジェクトエネミーを表示する敵グループ
- *
- * @param enemyObjectInfos
- * @type struct<enemyObjectInfo>[]
- * @text オブジェクトエネミー情報
- * @desc オブジェクトとして表示するエネミー情報
- */
-
-/*~struct~enemyObjectInfo:ja
- *
- * @param objEnemyFile
- * @type file
- * @dir img\enemies
- * @text オブジェクトエネミーファイル
- * @desc オブジェクトにするエネミー画像ファイル
- *
- * @param drawX
- * @type number
- * @default 0
- * @text 描画位置X
- * @desc 描画するX座標
- *
- * @param drawY
- * @type number
- * @default 0
- * @text 描画位置Y
- * @desc 描画するY座標
- *
- * @param scaleX
- * @type number
- * @min -999
- * @max 999
- * @default 100
- * @text 拡大幅(%)
- * @desc 幅の拡大率
- *
- * @param scaleY
- * @type number
- * @min -999
- * @max 999
- * @default 100
- * @text 拡大高さ(%)
- * @desc 高さの拡大率
+ * @param objEnemyIds
+ * @type enemy[]
+ * @text オブジェクトエネミー
+ * @desc オブジェクトにするエネミー
  */
 
 
@@ -133,56 +83,47 @@
 
 
     //-----------------------------------------------------------------------------
+    // Game_Enemy
+    //-----------------------------------------------------------------------------
+    Game_Enemy.prototype.isEnemy = function() {
+        return !params.objEnemyIds.includes(this._enemyId);
+    };
+
+
+    //-----------------------------------------------------------------------------
     // Game_Troop
     //-----------------------------------------------------------------------------
     const _Game_Troop_Clear = Game_Troop.prototype.clear;
     Game_Troop.prototype.clear = function() {
         _Game_Troop_Clear.apply(this, arguments);
-        this._objEnemyInfos = [];
+        this._allMemberFlg = true;
     };
 
-    const _Game_Troop_Setup = Game_Troop.prototype.setup;
-    Game_Troop.prototype.setup = function(troopId) {
-        _Game_Troop_Setup.apply(this, arguments);
-        const enemyObject = params.enemyObjects.filter(paramEnemyObject => paramEnemyObject.troopId === troopId)[0];
-
-        for (const enemyObjectInfo of enemyObject.enemyObjectInfos) {
-            const bitmap = ImageManager.loadEnemy(enemyObjectInfo.objEnemyFile);
-            const objEnemyInfo = {
-                bitmap: bitmap,
-                drawX: enemyObjectInfo.drawX,
-                drawY: enemyObjectInfo.drawY,
-                scaleX: enemyObjectInfo.scaleX,
-                scaleY: enemyObjectInfo.scaleY
-            };
-            this._objEnemyInfos.push(objEnemyInfo);
+    const _Game_Troop_prototype_members = Game_Troop.prototype.members;
+    Game_Troop.prototype.members = function() {
+        const allMembers = _Game_Troop_prototype_members.apply(this, arguments);
+        if (this._allMemberFlg) {
+            return allMembers;
+        } else {
+            return allMembers.filter(enemy => enemy.isEnemy());
         }
     };
 
-    Game_Troop.prototype.objEnemyInfos = function() {
-        return this._objEnemyInfos;
+    const _Game_Troop_EnemyNames = Game_Troop.prototype.enemyNames;
+    Game_Troop.prototype.enemyNames = function() {
+        this.setAllMemberFlg(false);
+        const names = _Game_Troop_EnemyNames.apply(this, arguments);
+        this.setAllMemberFlg(true);
+        return names;
     };
 
-
-    //-----------------------------------------------------------------------------
-    // Spriteset_Battle
-    //-----------------------------------------------------------------------------
-    const _Spriteset_Battle_CreateBattleback = Spriteset_Battle.prototype.createBattleback;
-    Spriteset_Battle.prototype.createBattleback = function() {
-        _Spriteset_Battle_CreateBattleback.apply(this, arguments);
-        this.createObjEnemy();
+    Game_Troop.prototype.aliveMembers = function() {
+        const enemys = Game_Unit.prototype.aliveMembers.call(this);
+        return enemys.filter(enemy => enemy.isEnemy());
     };
 
-    Spriteset_Battle.prototype.createObjEnemy = function() {
-        const objEnemyInfos = $gameTroop.objEnemyInfos();
-
-        for (const objEnemyInfo of objEnemyInfos) {
-            const objEnemy = new Sprite(objEnemyInfo.bitmap);
-            objEnemy.x = objEnemyInfo.drawX;
-            objEnemy.y = objEnemyInfo.drawY;
-            objEnemy.scale.x = objEnemyInfo.scaleX * 0.01;
-            objEnemy.scale.y = objEnemyInfo.scaleY * 0.01;
-            this._baseSprite.addChild(objEnemy);
-        }
+    Game_Troop.prototype.setAllMemberFlg = function(allMemberFlg) {
+        this._allMemberFlg = allMemberFlg;
     }
+
 })();
