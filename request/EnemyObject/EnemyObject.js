@@ -31,17 +31,25 @@
  *
  *=====================================================================================================================================================
  *
- * @param objEnemyInfos
- * @type struct<objEnemyInfo>[]
- * @text オブジェクトエネミー情報設定
- * @desc オブジェクトにするエネミー情報の設定
+ * @param enemyInfos
+ * @type struct<enemyInfo>[]
+ * @text エネミー情報設定
+ * @desc エネミー情報の設定
  */
 
-/*~struct~objEnemyInfo:ja
- * @param objEnemyId
+/*~struct~enemyInfo:ja
+ * @param enemyId
  * @type enemy
  * @text オブジェクトエネミー
  * @desc オブジェクトにするエネミー
+ *
+ * @param objEnemy
+ * @type boolean
+ * @on オブジェクト
+ * @off エネミー
+ * @default false
+ * @text オブジェクトエネミー
+ * @desc エネミーがオブジェクトか通常のエネミーか設定
  *
  * @param screenZ
  * @type number
@@ -114,8 +122,8 @@
     }
 
     Game_Enemy.prototype.setEnemyType = function(enemyId) {
-        for (const objEnemyInfo of params.objEnemyInfos) {
-            if (objEnemyInfo.objEnemyId === enemyId) {
+        for (const objEnemyInfo of params.enemyInfos) {
+            if (objEnemyInfo.enemyId === enemyId && objEnemyInfo.objEnemy) {
                 this._objEnemy = true;
                 break;
             }
@@ -149,8 +157,8 @@
     Game_Troop.prototype.setup = function(troopId) {
         _Game_Troop_Setup.apply(this, arguments);
         for (const enemy of this._enemies) {
-            for (const objEnemyInfo of params.objEnemyInfos) {
-                if (enemy.enemyId() === objEnemyInfo.objEnemyId) {
+            for (const objEnemyInfo of params.enemyInfos) {
+                if (enemy.enemyId() === objEnemyInfo.enemyId) {
                     const screenZ = objEnemyInfo.screenZ;
                     enemy.setScreenZ(screenZ);
                     break;
