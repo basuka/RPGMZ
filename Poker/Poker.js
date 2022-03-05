@@ -19,7 +19,7 @@
  * 2.「プラグインコマンド」イベントから「ポーカー開始」コマンド
  *   を設定してください。
  *
- * 3.必要に応じてパラメータを設定してください。
+ * 3.必要に応じてパラメータ及びコマンドパラメータを設定してください。
  *
  *-----------------------------------------------------------------------------
  * README
@@ -2487,6 +2487,7 @@
             case PokerMsgType.winMsg:
                 this._doubleUpCommandWindow.show();
                 this._doubleUpCommandWindow.activate();
+                this._doubleUpCommandWindow.forceSelect(0);
                 this._helpWindow.setText(Poker.doubleUpMsg.format(this._poker.getWinCoin() * 2, Poker.coinNumUnit));
                 break;
             case PokerMsgType.lostMsg:
