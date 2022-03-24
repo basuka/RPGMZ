@@ -5,7 +5,7 @@
  * @target MZ
  * @plugindesc コインショップを設定します。
  * @author Basu
- * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/CoinShop/CoinShop.js
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/AlignmentSkill/AlignmentSkill.js
  *
  * @help CoinShop.js
  *
@@ -230,9 +230,9 @@
 
     Scene_CoinShop.prototype.coinBuyCommandWindowRect = function() {
         const wx = Graphics.boxWidth * 0.25;
-        const wy = Graphics.height * 0.5;
+        const wy = Graphics.height * 0.4;
         const ww = 390;
-        const wh = this.calcWindowHeight(1, true);
+        const wh = this.calcWindowHeight(3, true);
         return new Rectangle(wx, wy, ww, wh);
     };
 
@@ -308,11 +308,42 @@
     Window_CoinBuyCommand.prototype.initialize = function(rect) {
         this.initInfo();
         Window_HorzCommand.prototype.initialize.call(this, rect);
+        this.createButtons();
+        this.placeButtons();
     };
 
     Window_CoinBuyCommand.prototype.initInfo = function() {
         this._coinNums = [0, 0, 0, 0, 0, 0, 0, 0];
         this._coin = 0;
+    };
+
+    Window_CoinBuyCommand.prototype.start = function() {
+        this.placeButtons();
+    }
+
+    Window_CoinBuyCommand.prototype.createButtons = function() {
+        this._buttons = [];
+        if (ConfigManager.touchUI) {
+            for (const type of ["down", "up", "ok"]) {
+                const button = new Sprite_Button(type);
+                this._buttons.push(button);
+                this.addInnerChild(button);
+            }
+            this._buttons[0].setClickHandler(this.onButtonDown.bind(this));
+            this._buttons[1].setClickHandler(this.onButtonUp.bind(this));
+            this._buttons[2].setClickHandler(this.onButtonOk.bind(this));
+        }
+    };
+
+    Window_CoinBuyCommand.prototype.placeButtons = function() {
+        const sp = this.buttonSpacing();
+        const totalWidth = this.totalButtonWidth();
+        let x = (this.innerWidth - totalWidth) / 2;
+        for (const button of this._buttons) {
+            button.x = x;
+            button.y = this.buttonY();
+            x += button.width + sp;
+        }
     };
 
     Window_CoinBuyCommand.prototype.makeCommandList = function() {
@@ -413,6 +444,31 @@
         this.updateInputData();
         this.deactivate();
         this.callOkHandler();
+    };
+
+    Window_CoinBuyCommand.prototype.onButtonDown = function() {
+        this.downBuyCoin();
+    };
+
+    Window_CoinBuyCommand.prototype.onButtonUp = function() {
+        this.upBuyCoin();
+    };
+
+    Window_CoinBuyCommand.prototype.onButtonOk = function() {
+        this.processOk();
+    };
+
+    Window_CoinBuyCommand.prototype.totalButtonWidth = function() {
+        const sp = this.buttonSpacing();
+        return this._buttons.reduce((r, button) => r + button.width + sp, -sp);
+    };
+
+    Window_CoinBuyCommand.prototype.buttonY = function() {
+        return this.itemHeight() + this.buttonSpacing() * 4;
+    };
+
+    Window_CoinBuyCommand.prototype.buttonSpacing = function() {
+        return 8;
     };
 
 
