@@ -391,7 +391,7 @@
         this.initialize(...arguments);
     };
 
-    Sprite_SlotMachine.prototype = Object.create(Sprite.prototype);
+    Sprite_SlotMachine.prototype = Object.create(Sprite_Clickable.prototype);
     Sprite_SlotMachine.prototype.constructor = Sprite_SlotMachine;
 
     Sprite_SlotMachine.prototype.initialize = function(bitmap) {
@@ -401,6 +401,13 @@
         this.createSlotSpriteWindow();
         this.createCoinSpriteWindow();
         this.createScaleObject();
+        this.createBetButtonSprite();
+        this.createStartButtonSprite();
+        this.createStopButtonSprite();
+        this.createEndButtonSprite();
+
+        this._click = false;
+        this._clickEnabled = false;
     };
 
     Sprite_SlotMachine.prototype.createSlotSpriteWindowFrame = function(bitmap) {
@@ -454,10 +461,101 @@
 
         const scaleObjectBitmap = this.createFrameSpriteWindow(0, 0, width, height);
 
-        const scaleObject = new Sprite_ScaleObject(scaleObjectBitmap);
-        scaleObject.x = size * 12;
-        scaleObject.y = size * 5.5;
-        this.addChild(scaleObject);
+        this._scaleObject = new Sprite_ScaleObject(scaleObjectBitmap);
+        this._scaleObject.x = size * 12;
+        this._scaleObject.y = size * 5.5;
+        this.addChild(this._scaleObject);
+    };
+
+    Sprite_SlotMachine.prototype.createBetButtonSprite = function() {
+        const margin = SlotMachine.boxMargin();
+        const size = SlotMachine.standardSize();
+        const width = size * 1.5;
+        const height = size;
+        
+        const betButtonBitmap = new Bitmap(width, height);
+        const context = betButtonBitmap._context;
+        context.beginPath();
+        context.fillStyle = "#696969";
+        context.rect(0, 0, width, height);
+        context.fill();
+        context.strokeStyle = "#897408";
+        context.lineWidth = margin;
+        context.stroke();
+
+        betButtonBitmap.fontSize = size * 0.4;
+        betButtonBitmap.drawText("BET", 0, 0, width, height, "center");
+
+        this._betButton = new Sprite_SlotButton(betButtonBitmap)
+        this._betButton.x = this._scaleObject.x + this._scaleObject.width + margin;
+        this._betButton.y = this._slotFrameSpriteWindow.y + this._slotFrameSpriteWindow.height * 0.5;
+        this.addChild(this._betButton);
+    };
+
+    Sprite_SlotMachine.prototype.createStartButtonSprite = function() {
+        const margin = SlotMachine.boxMargin();
+        const startButtonBitmap = this.createStartStopButton("START");
+        this._startButton = new Sprite_SlotButton(startButtonBitmap)
+        this._startButton.x = this._betButton.x;
+        this._startButton.y = this._betButton.y + this._betButton.height + margin;
+        this.addChild(this._startButton);
+    }
+
+    Sprite_SlotMachine.prototype.createStopButtonSprite = function() {
+        const margin = SlotMachine.boxMargin();
+        const stopButtonBitmap = this.createStartStopButton("STOP");
+        this._stopButton = new Sprite_SlotButton(stopButtonBitmap)
+        this._stopButton.x = this._betButton.x;
+        this._stopButton.y = this._betButton.y + this._betButton.height + margin;
+        this.addChild(this._stopButton);
+        this._stopButton.hide();
+    }
+
+    Sprite_SlotMachine.prototype.createEndButtonSprite = function() {
+        const margin = SlotMachine.boxMargin();
+        const size = SlotMachine.standardSize();
+        const width = size * 1.5;
+        const height = size;
+        
+        const endButtonBitmap = new Bitmap(width, height);
+        const context = endButtonBitmap._context;
+        context.beginPath();
+        context.fillStyle = "#696969";
+        context.rect(0, 0, width, height);
+        context.fill();
+        context.strokeStyle = "#897408";
+        context.lineWidth = margin;
+        context.stroke();
+
+        endButtonBitmap.fontSize = size * 0.4;
+        endButtonBitmap.drawText("END", 0, 0, width, height, "center");
+
+        this._endButton = new Sprite_SlotButton(endButtonBitmap)
+        this._endButton.x = this._betButton.x;
+        this._endButton.y = this._scaleObject.y;
+        this.addChild(this._endButton);
+    };
+
+    Sprite_SlotMachine.prototype.createStartStopButton = function(text) {
+        const margin = SlotMachine.boxMargin();
+        const size = SlotMachine.standardSize();
+        const width = size * 1.5;
+        const height = size;
+        
+        const startStopButtonBitmap = new Bitmap(width, height);
+        const context = startStopButtonBitmap._context;
+        context.beginPath();
+        context.fillStyle = "#696969";
+        context.rect(0, 0, width, height);
+        context.fill();
+        context.strokeStyle = "#897408";
+        context.lineWidth = margin;
+        context.stroke();
+
+        startStopButtonBitmap.fontSize = size * 0.4;
+        startStopButtonBitmap.drawText(text, 0, 0, width, height, "center");
+        
+        return startStopButtonBitmap;
     };
 
     Sprite_SlotMachine.prototype.createFrameSpriteWindow = function(x, y, width, height) {
@@ -511,6 +609,67 @@
 
     Sprite_SlotMachine.prototype.getCoinSpriteFrameWindow = function() {
         return this._coinFrameSpriteWindow;
+    };
+
+    Sprite_SlotMachine.prototype.isBetButtonClick = function() {
+        return this._betButton.isClick();
+    };
+
+    Sprite_SlotMachine.prototype.isStartButtonClick = function() {
+        return this._startButton.isClick();
+    };
+
+    Sprite_SlotMachine.prototype.isStopButtonClick = function() {
+        return this._stopButton.isClick();
+    };
+
+    Sprite_SlotMachine.prototype.isEndButtonClick = function() {
+        return this._endButton.isClick();
+    };
+
+    Sprite_SlotMachine.prototype.setBetClickEnabled = function(enabled) {
+        this._betButton.setClickEnabled(enabled);
+    };
+
+    Sprite_SlotMachine.prototype.setStartClickEnabled = function(enabled) {
+        this._startButton.setClickEnabled(enabled);
+    };
+
+    Sprite_SlotMachine.prototype.setStopClickEnabled = function(enabled) {
+        this._stopButton.setClickEnabled(enabled);
+    };
+
+    Sprite_SlotMachine.prototype.setEndClickEnabled = function(enabled) {
+        this._endButton.setClickEnabled(enabled);
+    };
+
+    Sprite_SlotMachine.prototype.setStartButton = function() {
+        this._stopButton.hide();
+        this._startButton.show();
+    };
+
+    Sprite_SlotMachine.prototype.setStopButton = function() {
+        this._startButton.hide();
+        this._stopButton.show();
+    };
+
+    Sprite_SlotMachine.prototype.setClickEnabled = function(enabled) {
+        this._clickEnabled = enabled;
+    };
+
+    Sprite_SlotMachine.prototype.onClick = function() {
+        if (this._clickEnabled) {
+            this._click = true;
+        }
+    };
+
+    Sprite_SlotMachine.prototype.isClick = function() {
+        let click = this._click;
+
+        if (this._click) {
+            this._click = false;
+        }
+        return click;
     };
 
 
@@ -1465,6 +1624,47 @@
     };
 
 
+
+    //-----------------------------------------------------------------------------
+    // Sprite_SlotButton
+    //-----------------------------------------------------------------------------
+    function Sprite_SlotButton() {
+        this.initialize(...arguments);
+    };
+
+    Sprite_SlotButton.prototype = Object.create(Sprite_Clickable.prototype);
+    Sprite_SlotButton.prototype.constructor = Sprite_SlotButton;
+
+    Sprite_SlotButton.prototype.initialize = function(bitmap) {
+        Sprite.prototype.initialize.call(this, bitmap);
+        this._click = false;
+        this._clickEnabled = false;
+    };
+
+    Sprite_SlotButton.prototype.onClick = function() {
+        this._click = true;
+    };
+
+    Sprite_SlotButton.prototype.setClickEnabled = function(enabled) {
+        this._clickEnabled = enabled;
+    };
+
+    Sprite_SlotButton.prototype.onClick = function() {
+        if (this._clickEnabled) {
+            this._click = true;
+        }
+    };
+
+    Sprite_SlotButton.prototype.isClick = function() {
+        let click = this._click;
+
+        if (this._click) {
+            this._click = false;
+        }
+        return click;
+    };
+
+
     //-----------------------------------------------------------------------------
     // Scene_SlotMachine
     //-----------------------------------------------------------------------------
@@ -1488,6 +1688,10 @@
         this._stopFrameCount = 0;
         this._stopLineNo = 0;
         this._slotStatus = SlotStatus.stop;
+        if (this._slotMachine) {
+            this._slotMachine.setBetClickEnabled(true);
+            this._slotMachine.setEndClickEnabled(true);
+        }
     };
 
     Scene_SlotMachine.prototype.create = function() {
@@ -1505,6 +1709,8 @@
         Scene_Base.prototype.start.call(this);
         this._coinSprite.updateCoin(SlotMachine.coin);
         this._helpWindow.setText(SlotMachine.helpMessage);
+        this._slotMachine.setBetClickEnabled(true);
+        this._slotMachine.setEndClickEnabled(true);
     };
 
     Scene_SlotMachine.prototype.createReels = function() {
@@ -1631,22 +1837,24 @@
         if (this._slotStatus === SlotStatus.stop) {
             if (this._bet === 0 && !this.isEnoughCoin()) {
                 this._helpWindow.setText(SlotMachine.notEnoughMessage);
-                if (Input.isRepeated("ok") || Input.isRepeated("cancel")) {
+                if (Input.isRepeated("ok") || Input.isRepeated("cancel") || this._slotMachine.isClick()) {
                     SceneManager.pop();
                 }
                 return;
             }
 
-            if (Input.isRepeated("up")) {
+            if (Input.isRepeated("up") || this._slotMachine.isBetButtonClick()) {
                 this.bet();
+                this._slotMachine.setStartClickEnabled(true);
+                this._slotMachine.setEndClickEnabled(false);
             }
 
-            if (Input.isRepeated("ok") && this._bet > 0) {
+            if ((Input.isRepeated("ok") || this._slotMachine.isStartButtonClick()) && this._bet > 0) {
                 SoundManager.playOk();
                 this.spinReel();
             }
 
-            if (Input.isRepeated("cancel") && this._bet === 0) {
+            if ((Input.isRepeated("cancel") || this._slotMachine.isEndButtonClick()) && this._bet === 0) {
                 SceneManager.pop();
             }
         } else if (this._slotStatus === SlotStatus.spin || this._slotStatus === SlotStatus.stopStart) {
@@ -1658,10 +1866,11 @@
     };
 
     Scene_SlotMachine.prototype.slotAction = function() {
-        if (Input.isRepeated("ok") && this._slotStatus === SlotStatus.spin) {
+        if ((Input.isRepeated("ok") || this._slotMachine.isStopButtonClick()) && this._slotStatus === SlotStatus.spin) {
             SoundManager.playOk();
             this._slotStatus = SlotStatus.stopStart;
             this.setStopFrame();
+            this._slotMachine.setStopClickEnabled(false);
         }
 
         for (const slotRealSprite of this._slotRealSprites) {
@@ -1689,7 +1898,7 @@
                 this._result = true;
             }
         }
-    }
+    };
 
     Scene_SlotMachine.prototype.result = function() {
         this._helpWindow.open();
@@ -1712,17 +1921,20 @@
         }
 
         if (!this._result) {
-            if (Input.isRepeated("ok") || Input.isRepeated("cancel")) {
+            this._slotMachine.setClickEnabled(true);
+            if (Input.isRepeated("ok") || Input.isRepeated("cancel") || this._slotMachine.isClick()) {
                 this._helpWindow.setText(SlotMachine.helpMessage);
                 this.setSpinSpeed();
                 this.initInfo();
                 this._betLine1.clear();
                 this._betLine2.clear();
                 this._betLine3.clear();
+                this._slotMachine.setStartButton();
+                this._slotMachine.setClickEnabled(false);
                 AudioManager.stopMe();
             }
         }
-    }
+    };
 
     Scene_SlotMachine.prototype.bet = function() {
         ++this._bet;
@@ -1748,6 +1960,10 @@
     Scene_SlotMachine.prototype.spinReel = function() {
         this._slotStatus = SlotStatus.spin;
         this._helpWindow.close();
+        this._slotMachine.setStopButton();
+        this._slotMachine.setBetClickEnabled(false);
+        this._slotMachine.setStartClickEnabled(false);
+        this._slotMachine.setStopClickEnabled(true);
         AudioManager.playSe({
             "name": "Switch3",
             "volume": 90,
@@ -1777,7 +1993,7 @@
             stopFrame = SlotMachine.stopFrame() * index + stopRandFrame + stopFrame;
             slotRealSprite.setStopFrame(stopFrame);
         }
-    }
+    };
 
     Scene_SlotMachine.prototype.judge = function() {
         const mainSlotRealSprite = this._slotRealSprites[0];
@@ -1851,7 +2067,7 @@
             }
         }
         return winCoin;
-    }
+    };
 
     Scene_SlotMachine.prototype.getWinCoin = function(slotIconInfo, judgeCount) {
         let winCoin = 0;
@@ -1864,13 +2080,13 @@
         }
 
         return winCoin;
-    }
+    };
 
     Scene_SlotMachine.prototype.coinNumUnit = function() {
         return SlotMachine.coinNumUnit;
-    }
+    };
 
     Scene_SlotMachine.prototype.isEnoughCoin = function() {
         return SlotMachine.coin >= SlotMachine.scale;
-    }
+    };
 })();
