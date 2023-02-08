@@ -402,7 +402,7 @@
 
   const _Game_BattlerBase_PaySkillCost = Game_BattlerBase.prototype.paySkillCost
   Game_BattlerBase.prototype.paySkillCost = function(skill) {
-    if (!this.currentAction()._inspirationFlag) {
+    if (!this.currentAction()?._inspirationFlag) {
       _Game_BattlerBase_PaySkillCost.apply(this, arguments);
     }
   };
