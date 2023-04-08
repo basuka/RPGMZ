@@ -483,13 +483,27 @@ $skillPoint = null;
   const _Scene_Boot_OnDatabaseLoaded = Scene_Boot.prototype.onDatabaseLoaded;
   Scene_Boot.prototype.onDatabaseLoaded = function() {
     _Scene_Boot_OnDatabaseLoaded.apply(this, arguments);
-    this.createTextManager();
+    /**
+     * MaterialShop.js でも呼び出される可能性がある
+     * 既に呼び出していた場合は何もしない
+     */
+    if (!TextManager.sp) {
+      this.createTextManager();
+    }
   };
 
   //-----------------------------------------------------------------------------
   // TextManagerオブジェクトにスキルポイント用のプロパティを追加
   //-----------------------------------------------------------------------------
+  const _Scene_Boot_createTextManager = Scene_Boot.prototype.createTextManager;
   Scene_Boot.prototype.createTextManager = function() {
+    /**
+     * MaterialShop.js よりも後に読み込まれた場合、
+     * 単純に上書きすると向こうの処理を潰してしまう
+     */
+    if (_Scene_Boot_createTextManager) {
+      _Scene_Boot_createTextManager.call(this);
+    }
      Object.defineProperties(TextManager, {
         sp: TextManager.getter("skillPoint", 0),
         spA: TextManager.getter("skillPoint", 1),
