@@ -638,11 +638,33 @@ $teleport = null;
     Scene_Shop.prototype.commandSell.call(this);
   };
 
+  //-----------------------------------------------------------------------------
+  // Scene_Boot.prototype.onDatabaseLoaded関数の再定義
+  //-----------------------------------------------------------------------------
+  const _Scene_Boot_OnDatabaseLoaded = Scene_Boot.prototype.onDatabaseLoaded;
+  Scene_Boot.prototype.onDatabaseLoaded = function() {
+    _Scene_Boot_OnDatabaseLoaded.apply(this, arguments);
+    /**
+     * SkillPoint.js でも呼び出される可能性がある
+     * 既に呼び出していた場合は何もしない
+     */
+    if (!TextManager.quantity) {
+      this.createTextManager();
+    }
+  };
 
   //-----------------------------------------------------------------------------
-  // TextManagerオブジェクトにス素材ショップ用のプロパティを追加
+  // TextManagerオブジェクトに素材ショップ用のプロパティを追加
   //-----------------------------------------------------------------------------
+  const _Scene_Boot_createTextManager = Scene_Boot.prototype.createTextManager;
   Scene_Boot.prototype.createTextManager = function() {
+    /**
+     * SkillPoint.js より後に読み込まれた場合、
+     * 単純に上書きすると向こうの処理を潰してしまう
+     */
+    if (_Scene_Boot_createTextManager) {
+      _Scene_Boot_createTextManager.call(this);
+    }
      Object.defineProperties(TextManager, {
         quantity: TextManager.getter("material", "quantity"),
         materialMsg: TextManager.getter("material", "materialMsg")
