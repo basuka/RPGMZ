@@ -198,6 +198,7 @@
  */
 
 (() => {
+  'use strict';
 
   const pluginName = "InspirationSkill";
 
@@ -211,7 +212,7 @@
   PluginManager_Parser.prototype.parse = function (params) {
      if (this.isObject(params, "string")) {
         try {
-           parseParams = JSON.parse(params)
+           const parseParams = JSON.parse(params)
            params = this.parse(parseParams);
         } catch (e) {
            params = this.convertNumber(params);
@@ -339,7 +340,7 @@
       }
 
       if (inspirationSkills.length) {
-        inspirationSkill = inspirationSkills[Math.floor( Math.random() * inspirationSkills.length )];
+        const inspirationSkill = inspirationSkills[Math.floor( Math.random() * inspirationSkills.length )];
         subject.currentAction()._item._itemId = inspirationSkill;
         subject.currentAction()._inspirationFlag = true;
         subject.learnSkill(inspirationSkill);
@@ -402,7 +403,7 @@
 
   const _Game_BattlerBase_PaySkillCost = Game_BattlerBase.prototype.paySkillCost
   Game_BattlerBase.prototype.paySkillCost = function(skill) {
-    if (!this.currentAction()._inspirationFlag) {
+    if (!this.currentAction()?._inspirationFlag) {
       _Game_BattlerBase_PaySkillCost.apply(this, arguments);
     }
   };
