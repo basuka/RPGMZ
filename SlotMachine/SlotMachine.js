@@ -89,34 +89,46 @@
  *
  * @param helpMsg
  * @text ヘルプメッセージ
- * @type text
+ * @type string
  * @default カーソルキーの上：ベット\n決定キー：スタート/ストップ　　　　　　 キャンセルキー：終了
  * @desc ヘルプメッセージ
  *
  * @param coinNumUnit
  * @text コイン枚数の単位
- * @type text
+ * @type string
  * @default 枚
  * @desc コイン枚数の単位を設定
  *
  * @param winMsg
  * @text 勝利メッセージ
- * @type text
+ * @type string
  * @default おめでとうございます！\n%1%2のコインが当たりました！
  * @desc 勝利時のメッセージの設定
  *       "%1"は獲得したコイン数に置換されます。
  *
  * @param lostMsg
  * @text 敗北メッセージ
- * @type text
+ * @type string
  * @default 残念でした。
  * @desc 負けた時のメッセージ
  *
  * @param notEnoughMsg
  * @text コイン不足メッセージ
+ * @type string
  * @default コインが足りません。
  * @desc コインが足りない時のメッセージ
  *
+ * @param judgeType
+ * @text 判定タイプ
+ * @type select
+ * @option 完全一致
+ * @value 0
+ * @option 部分一致
+ * @value 1
+ * @default 0
+ * @desc 完全一致：第一レーンから順に判定
+ *       部分一致：部分一致を判定
+ * 
  * @command open
  * @text スロットマシーン開始
  * @desc スロットマシーンを開きます。
@@ -244,6 +256,21 @@
 
     const params = PluginManager_Parser.prototype.parse(PluginManager.parameters(pluginName));
 
+    //-----------------------------------------------------------------------------
+    // JudgeType
+    //-----------------------------------------------------------------------------
+    function JudgeType() {
+        throw new Error("This is a static class");
+    }
+
+    Object.defineProperties(JudgeType, {
+        perfect: {
+            value: 0
+        },
+        partial: {
+            value: 1
+        }
+    });
 
     //-----------------------------------------------------------------------------
     // SlotStatus
@@ -1837,7 +1864,8 @@
         if (this._slotStatus === SlotStatus.stop) {
             if (this._bet === 0 && !this.isEnoughCoin()) {
                 this._helpWindow.setText(SlotMachine.notEnoughMessage);
-                if (Input.isRepeated("ok") || Input.isRepeated("cancel") || this._slotMachine.isClick()) {
+                this._slotMachine.setEndClickEnabled(true);
+                if (Input.isRepeated("ok") || Input.isRepeated("cancel") || this._slotMachine.isEndButtonClick()) {
                     SceneManager.pop();
                 }
                 return;
@@ -1998,9 +2026,9 @@
     Scene_SlotMachine.prototype.judge = function() {
         const mainSlotRealSprite = this._slotRealSprites[0];
         const mainSubjectIconInfos = mainSlotRealSprite.getSubjectIconInfos()
-        const mainSubjectIconInfo1 = mainSubjectIconInfos[0];
-        const mainSubjectIconInfo2 = mainSubjectIconInfos[1];
-        const mainSubjectIconInfo3 = mainSubjectIconInfos[2];
+        let mainSubjectIconInfo1 = mainSubjectIconInfos[0];
+        let mainSubjectIconInfo2 = mainSubjectIconInfos[1];
+        let mainSubjectIconInfo3 = mainSubjectIconInfos[2];
 
         let mainSubjectIcon1 = mainSubjectIconInfo1.iconNo;
         let mainSubjectIcon2 = mainSubjectIconInfo2.iconNo;
@@ -2019,27 +2047,59 @@
         let judgeCount3 = 0;
 
         for (const slotRealSprite of this._slotRealSprites) {
-            const subjectIconInfos = slotRealSprite.getSubjectIconInfos()
+            const subjectIconInfos = slotRealSprite.getSubjectIconInfos();
             const subjectIconInfo1 = subjectIconInfos[0];
             const subjectIconInfo2 = subjectIconInfos[1];
             const subjectIconInfo3 = subjectIconInfos[2];
-
-            if (mainSubjectIcon1 === subjectIconInfo1.iconNo) {
-                ++judgeCount1;
+            
+            if (params.judgeType === JudgeType.perfect) {
+                if (mainSubjectIcon1 === subjectIconInfo1.iconNo) {
+                    ++judgeCount1;
+                } else {
+                    mainSubjectIcon1 = -1;
+                }
+    
+                if (mainSubjectIcon2 === subjectIconInfo2.iconNo) {
+                    ++judgeCount2;
+                } else {
+                    mainSubjectIcon2 = -1;
+                }
+    
+                if (mainSubjectIcon3 === subjectIconInfo3.iconNo) {
+                    ++judgeCount3;
+                } else {
+                    mainSubjectIcon3 = -1;
+                }
             } else {
-                mainSubjectIcon1 = -1;
-            }
-
-            if (mainSubjectIcon2 === subjectIconInfo2.iconNo) {
-                ++judgeCount2;
-            } else {
-                mainSubjectIcon2 = -1;
-            }
-
-            if (mainSubjectIcon3 === subjectIconInfo3.iconNo) {
-                ++judgeCount3;
-            } else {
-                mainSubjectIcon3 = -1;
+                if (mainSubjectIcon1 === subjectIconInfo1.iconNo) {
+                    ++judgeCount1;
+                } else {
+                    if (judgeCount1 < 3) {
+                        judgeCount1 = 1;
+                        mainSubjectIcon1 = subjectIconInfo1.iconNo;
+                        mainSubjectIconInfo1 = subjectIconInfo1;
+                    }
+                }
+    
+                if (mainSubjectIcon2 === subjectIconInfo2.iconNo) {
+                    ++judgeCount2;
+                } else {
+                    if (judgeCount2 < 3) {
+                        judgeCount2 = 1;
+                        mainSubjectIcon2 = subjectIconInfo2.iconNo;
+                        mainSubjectIconInfo2 = subjectIconInfo2;
+                    }
+                }
+    
+                if (mainSubjectIcon3 === subjectIconInfo3.iconNo) {
+                    ++judgeCount3;
+                } else {
+                    if (judgeCount3 < 3) {
+                        judgeCount3 = 1;
+                        mainSubjectIcon3 = subjectIconInfo3.iconNo;
+                        mainSubjectIconInfo3 = subjectIconInfo3;
+                    }
+                }
             }
         }
 
