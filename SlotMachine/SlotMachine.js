@@ -148,6 +148,27 @@
  * @default 1
  * @desc 倍率を設定します
  *
+ * @arg backColorType
+ * @text 背景色タイプ
+ * @type select
+ * @option カラーコード
+ * @value 0
+ * @option RGB
+ * @value 1
+ * @default 0
+ * @desc カラーコード：背景色を背景色(カラーコード)で設定
+ *       RGB：背景色を背景色(RGB)で設定
+ * 
+ * @arg backColorCodeList
+ * @text 背景色(カラーコード)
+ * @type struct<backColorCode>[]
+ * @default ["{\"offset\":\"0.0\",\"colorCode\":\"#000080\"}","{\"offset\":\"0.5\",\"colorCode\":\"#6495ed\"}","{\"offset\":\"1.0\",\"colorCode\":\"#000080\"}"]
+ * 
+ * @arg backColorRgbList
+ * @text 背景色(RGB)
+ * @type struct<backColorRgb>[]
+ * @default ["{\"offset\":\"0.0\",\"rgb_R\":\"0\",\"rgb_G\":\"0\",\"rgb_B\":\"128\"}","{\"offset\":\"0.5\",\"rgb_R\":\"100\",\"rgb_G\":\"149\",\"rgb_B\":\"237\"}","{\"offset\":\"1.0\",\"rgb_R\":\"0\",\"rgb_G\":\"0\",\"rgb_B\":\"128\"}"]
+ * 
  */
 
 /*~struct~slotIcon:ja
@@ -199,6 +220,56 @@
  * @desc リールの配置を設定
  */
 
+/*~struct~backColorCode:ja
+ * @param offset
+ * @text オフセット値
+ * @type number
+ * @min 0.0
+ * @max 1.0
+ * @decimals 1
+ * @desc グラデーションのオフセット値を設定(0.0～1.0)
+ * 
+ * @param colorCode
+ * @text カラーコード
+ * @type string
+ * @desc 背景色に設定するカラーコードを設定
+ * 
+ */
+
+/*~struct~backColorRgb:ja
+ * @param offset
+ * @text オフセット値
+ * @type number
+ * @min 0.0
+ * @max 1.0
+ * @decimals 1
+ * @desc グラデーションのオフセット値を設定(0.0～1.0)
+ * 
+ * @param rgb_R
+ * @text rgb値(R)
+ * @type number
+ * @min 0
+ * @max 255
+ * @decimals 0
+ * @desc 背景色に設定するrgb値(R)を設定
+ * 
+ * @param rgb_G
+ * @text rgb値(G)
+ * @type number
+ * @min 0
+ * @max 255
+ * @decimals 0
+ * @desc 背景色に設定するrgb値(G)を設定
+ * 
+ * @param rgb_B
+ * @text rgb値(B)
+ * @type number
+ * @min 0
+ * @max 255
+ * @decimals 0
+ * @desc 背景色に設定するrgb値(B)を設定
+ */
+
 (() => {
 
     const pluginName = "SlotMachine";
@@ -207,6 +278,9 @@
         PluginManager_Parser.prototype.parse(slotParams);
         SlotMachine.scale = slotParams.scale;
         SlotMachine.reelsList = slotParams.reelsList;
+        SlotMachine.backColorType = slotParams.backColorType;
+        SlotMachine.backColorCodeList = slotParams.backColorCodeList;
+        SlotMachine.backColorRgbList = slotParams.backColorRgbList;
         SceneManager.push(Scene_SlotMachine);
     });
 
@@ -255,6 +329,22 @@
     };
 
     const params = PluginManager_Parser.prototype.parse(PluginManager.parameters(pluginName));
+
+    //-----------------------------------------------------------------------------
+    // BackColorType
+    //-----------------------------------------------------------------------------
+    function BackColorType() {
+        throw new Error("This is a static class");
+    }
+
+    Object.defineProperties(BackColorType, {
+        colorCode: {
+            value: 0
+        },
+        rgb: {
+            value: 1
+        }
+    });
 
     //-----------------------------------------------------------------------------
     // JudgeType
@@ -1767,9 +1857,24 @@
         context.beginPath();
 
         const fillGrad = context.createLinearGradient(0, 0, width, height);
-        fillGrad.addColorStop(0.0, "#000080");
-        fillGrad.addColorStop(0.5, "#6495ed");
-        fillGrad.addColorStop(1.0, "#000080");
+
+        if (BackColorType.colorCode === SlotMachine.backColorType) {
+            for (const backColorCode of SlotMachine.backColorCodeList) {
+                const offset = backColorCode.offset.toFixed(1);
+                const colorCode = backColorCode.colorCode;
+
+                fillGrad.addColorStop(offset, colorCode);
+            }
+        } else {
+            for (const backColorRgb of SlotMachine.backColorRgbList) {
+                const offset = backColorRgb.offset.toFixed(1);
+                const rgb_R = backColorRgb.rgb_R;
+                const rgb_G = backColorRgb.rgb_G;
+                const rgb_B = backColorRgb.rgb_B;
+
+                fillGrad.addColorStop(offset, `rgb(${rgb_R},${rgb_G},${rgb_B})`);
+            }
+        }
         context.fillStyle = fillGrad;
 
         context.rect(0, 0, width, height);
