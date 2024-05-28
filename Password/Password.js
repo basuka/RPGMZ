@@ -5,7 +5,7 @@
  * @target MZ
  * @plugindesc パスワード機能を実装します。
  * @author Basu
- * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/SlotMachine/SlotMachine.js
+ * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/Password/Password.js
  *
  *
  * @help パスワード機能の拡張を行います。
