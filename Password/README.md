@@ -1,5 +1,5 @@
 パスワード機能を実装します。</br>
-合言葉やキー解除といったパスワード機能を実装することができます</br>
+合言葉やキー解除といったパスワード機能を実装することができます。</br>
 
 【パスワード】</br>
 https://raw.githubusercontent.com/basuka/RPGMZ/main/Password/Password.js</br>
