@@ -45,4 +45,10 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/AddTextColor/AddTextColor.js
 
 ![Image](/AddTextColor/image/image4.png)</br>
 ※追加した色はゲーム上で有効となります。</br>
-　ツクール上(プレビューなど)では有効にはなりません。
+　ツクール上(プレビューなど)では有効にはなりません。</br>
+
+</br>
+</br>
+
+<B>■利用規約</B></br>
+このプラグインはMITライセンスで配布しています
