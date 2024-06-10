@@ -1240,7 +1240,6 @@
             for (const normalParam of item.normalParamList) {
                 const paramId = normalParam.paramId;
                 const value = this.calcOperation(normalParam);
-                console.log(value);
 
                 if (normalParam.valueType === AbilityBoard.VALUE_TYPE_FIXED) {
                     this._actor.addParam(paramId, value);
