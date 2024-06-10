@@ -226,7 +226,7 @@
  * ※１行目にスキル名が表示されます
  *
  * ■勝利獲得メッセージ
- * 勝利時にAPを獲得メッセージを設定します。
+ * 勝利時にAPを獲得するメッセージを設定します。
  * %1：獲得AP　%2：AP名
  *
  *
@@ -1239,11 +1239,12 @@
         if (item.normalParamList) {
             for (const normalParam of item.normalParamList) {
                 const paramId = normalParam.paramId;
+                const value = this.calcOperation(normalParam);
+                console.log(value);
 
                 if (normalParam.valueType === AbilityBoard.VALUE_TYPE_FIXED) {
-                    this._actor.addParam(paramId, normalParam.value);
+                    this._actor.addParam(paramId, value);
                 } else {
-                    const value = normalParam.value;
                     this._actor.addParamRateAbility(paramId, value);
                 }
             }
@@ -2613,7 +2614,13 @@
 
         paramsList.forEach((params) => {
             const paramBase = this.paramBase(id);
-            value += Math.floor(paramBase * (params.value * 0.01));
+            let rateValue = params.value * 0.01;
+            if (rateValue < 0) {
+                rateValue *= -1;
+                value -= Math.floor(paramBase * rateValue);
+            } else {
+                value += Math.floor(paramBase * rateValue);
+            }
         });
 
         return value;
