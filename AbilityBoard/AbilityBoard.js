@@ -257,6 +257,8 @@
  *-----------------------------------------------------------------------------
  * このプラグインはMITライセンスで配布しています
  *
+ *
+ *
  *=====================================================================================================================================================
  * @param actorAbilityList
  * @text アクターアビリティ
@@ -1470,6 +1472,8 @@
     Scene_AbilityBoard.prototype.createAbilityActorInfoWindow = function () {
         const rect = this.actorInfoWindowRect();
         this._actorInfoWindow = new Window_AbilityActorInfo(rect);
+        this._actorInfoWindow.setHandler("pagedown", this.nextActor.bind(this));
+        this._actorInfoWindow.setHandler("pageup", this.previousActor.bind(this));
         this.addWindow(this._actorInfoWindow);
     };
 
@@ -1501,8 +1505,6 @@
         this._abilityBoardWindow.setContentWindow(this._contentWindow);
         this._abilityBoardWindow.setHandler("ok", this.onSelectAbility.bind(this));
         this._abilityBoardWindow.setHandler("cancel", this.popScene.bind(this));
-        this._abilityBoardWindow.setHandler("pagedown", this.nextActor.bind(this));
-        this._abilityBoardWindow.setHandler("pageup", this.previousActor.bind(this));
         this.addWindow(this._abilityBoardWindow);
     };
 
@@ -1544,6 +1546,7 @@
                 }
             }
         }
+        this._actorInfoWindow.activate();
     };
 
     Scene_AbilityBoard.prototype.previousActor = function () {
@@ -1557,6 +1560,7 @@
                 }
             }
         }
+        this._actorInfoWindow.activate();
     };
 
     Scene_AbilityBoard.prototype.onActorChange = function () {
