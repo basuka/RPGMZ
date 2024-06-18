@@ -18,6 +18,10 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/SplitParty/SplitParty.js</br
 
 </br>
 
+![Image](/SplitParty/image/image24.png)</br>
+
+</br>
+
 <B>設定・コマンド</B></br>
 
 分割パーティーの設定を行うコマンドです。</br>
