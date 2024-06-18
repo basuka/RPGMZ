@@ -1,5 +1,6 @@
 分割パーティー機能を実装します。</br>
-分割したパーティーを切り替えることが出来るようになります。</br>
+パーティーを複数に分けて設定することができるようになります。</br>
+分けたパーティーは切り替えながら操作をすることができます。</br>
 
 【分割パーティー】</br>
 https://raw.githubusercontent.com/basuka/RPGMZ/main/SplitParty/SplitParty.js</br>
