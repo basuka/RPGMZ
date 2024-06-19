@@ -300,9 +300,27 @@ Game_SplitParty.prototype.previousParty = function () {
 Game_SplitParty.prototype.update = function (id) {
     const party = this.party();
     this.select(id);
+    this.updateParty(party);
     this.updatePos(party);
     this.updateDumyEvent(party);
     this.changeNextParty(id);
+};
+
+Game_SplitParty.prototype.updateParty = function (party) {
+    const actor = $gameParty.members()[0];
+    const partyActor = party.actorList[0];
+
+    if (actor.actorId() !== partyActor.actorId()) {
+        party.actorList = $gameParty.members();
+
+        const dumyEvent = this._dumyPartyEvents[party.id];
+
+        const image = dumyEvent.pages[0].image;
+        image.characterName = actor.characterName();
+        image.characterIndex = actor.characterIndex();
+
+        $gameMap.event(dumyEvent.id).setImage(image.characterName, image.characterIndex);
+    }
 };
 
 Game_SplitParty.prototype.updatePos = function (party) {
