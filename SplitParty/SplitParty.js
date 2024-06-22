@@ -27,7 +27,7 @@
  * メンバーに存在しないアクターを追加する場合設定します。
  *
  * 　・メンバー追加
- * 　追加するアクターを設定ます。
+ * 　追加するアクターを設定します。
  *
  * 　・終了メンバー追加
  * 　この項目を設定すると「メンバー追加」で設定したアクターからこの項目で設定したアクターまで一括で追加することができます。
@@ -38,11 +38,23 @@
  * 変数に設定されている値が追加するアクターIDになります。
  *
  * 　・メンバー追加(変数)
- * 　追加するアクターを変数で設定ます。
+ * 　追加するアクターを変数で設定します。
  *
  * 　・終了メンバー追加(変数)
  * 　この項目を設定すると「メンバー追加(変数)」で設定した変数からこの項目で設定した変数まで一括で追加することができます。
  * 　既に追加されているアクターIDは除外されます。
+ *
+ * ■必須アクター
+ * 強制メンバーにするアクターを設定します。
+ * ここで設定されたアクターはメンバーから外せなくなります。
+ *
+ * 　・必須アクター
+ * 　必須アクターを設定します。
+ *
+ * 　・パーティー固定
+ * 　必須アクターを固定するパーティー番号を設定します。
+ * 　ここで設定したパーティー番号のパーティーから編成画面で変更することができなくなります。
+ * 　0を設定するとパーティーは固定されません。
  *
  * ■開始位置(2パーティー)
  * 第2パーティーの開始位置を設定します。
@@ -71,6 +83,10 @@
  * 分割パーティー終了時のパーティー編成で非戦闘メンバーを加えるかの判定を行います。
  * 非戦闘メンバーを加える場合、全対象メンバーがパーティーに追加されます。
  *
+ * ■除外アクター
+ * メンバー編成から除外するアクターを設定します。
+ * ここで設定されたアクターはメンバー編成で表示されなくなります。
+ *
  *
  *-----------------------------------------------------------------------------
  * README
@@ -88,6 +104,10 @@
  *-----------------------------------------------------------------------------
  * 2024/6/18 Ver.1.0.0　公開
  * 2024/6/19 Ver.1.0.1　待機パーティーのキャラが変更前の先頭キャラになってしまう不具合を修正
+ * 2024/6/22 Ver.2.0.0　サブパーティー(第2パーティー以降)の開始マップIDを設定できるよう機能を追加
+ *                      分割パーティー編成時に必須アクターを設定できるよう機能を追加
+ *                      必須アクターを指定パーティーに固定できるよう機能を追加
+ *                      分割パーティー終了時のパーティー編成で編成から除外するアクターを設定できるよう機能を追加
  *
  *
  *=====================================================================================================================================================
@@ -122,6 +142,12 @@
  * @text メンバー追加(変数)
  * @type struct<addMemberVariable>[]
  * @desc パーティー以外のメンバーを変数で追加する場合設定
+ *
+ * @arg requiredActorList
+ * @text 必須アクター
+ * @type struct<requiredActor>[]
+ * @desc 必須アクターを設定
+ *       ここで設定されたアクターはメンバーから外せなくなります
  *
  * @arg partyPos2
  * @text 開始位置(2パーティー)
@@ -160,6 +186,28 @@
  * @default false
  * @desc 通常メンバーに非戦闘メンバーを加えるかを設定
  *
+ * @arg exclusionActorIdList
+ * @text 除外アクターID
+ * @type actor[]
+ * @desc 通常メンバー編成から除外するアクターを設定
+ *
+ */
+
+/*~struct~requiredActor:ja
+ * @param actorId
+ * @text 必須アクター
+ * @type actor
+ * @desc 必須アクターを設定
+ *
+ * @param fixedParty
+ * @text パーティー固定
+ * @type number
+ * @min 0
+ * @max 4
+ * @default 0
+ * @desc 固定するパーティー番号を設定
+ *       0を設定するとパーティーは固定されません
+ *
  */
 
 /*~struct~addActor:ja
@@ -189,6 +237,14 @@
  */
 
 /*~struct~pos:ja
+ * @param mapId
+ * @text マップID
+ * @type number
+ * @min 0
+ * @default 0
+ * @desc パーティーの開始マップIDを設定
+ *       0の場合は場所移動イベントで移動したマップIDになります
+ *
  * @param x
  * @text 開始座標X
  * @type number
@@ -225,6 +281,7 @@ Game_SplitParty.prototype.init = function () {
     this._dumyPartyEvents = {};
     this._needsMapPageButtons = false;
     this._allActorIdList = [];
+    this._exclusionActorIdList = [];
     this._defaultMapId = 0;
     this._changeFlg = false;
 };
@@ -238,7 +295,7 @@ Game_SplitParty.prototype.setParty = function (id, actorList) {
 };
 
 Game_SplitParty.prototype.setPartyPos = function (id, pos) {
-    this._splitParties[id].mapId = 0;
+    this._splitParties[id].mapId = pos.mapId;
     this._splitParties[id].x = pos.x;
     this._splitParties[id].y = pos.y;
 };
@@ -364,15 +421,15 @@ Game_SplitParty.prototype.changeNextParty = function (id) {
 
     const direction = $gameMap.event(dumyId).direction();
 
-    const params = [];
-    params.push(0);
-    params.push(mapId);
-    params.push(nextParty.x);
-    params.push(nextParty.y);
-    params.push(direction);
-    params.push(0);
+    const cmdParams = [];
+    cmdParams.push(0);
+    cmdParams.push(mapId);
+    cmdParams.push(nextParty.x);
+    cmdParams.push(nextParty.y);
+    cmdParams.push(direction);
+    cmdParams.push(0);
 
-    this._interpreter.command201(params);
+    this._interpreter.command201(cmdParams);
 };
 
 Game_SplitParty.prototype.openMapPageButtons = function () {
@@ -444,6 +501,10 @@ Game_SplitParty.prototype.setCheckPos = function (params) {
     $gameSwitches.setValue(params.switchId, true);
 };
 
+Game_SplitParty.prototype.setExclusionActorIdList = function (params) {
+    this._exclusionActorIdList = params.exclusionActorIdList;
+};
+
 Game_SplitParty.prototype.addActorId = function (actorId) {
     if (!this._allActorIdList.includes(actorId)) {
         this._allActorIdList.push(actorId);
@@ -451,7 +512,11 @@ Game_SplitParty.prototype.addActorId = function (actorId) {
 };
 
 Game_SplitParty.prototype.allActorIdList = function () {
-    return this._allActorIdList;
+    if (this._exclusionActorIdList) {
+        return this._allActorIdList.filter((actorId) => !this._exclusionActorIdList.includes(actorId));
+    } else {
+        return this._allActorIdList;
+    }
 };
 
 Game_SplitParty.prototype.partyMapId = function (id) {
@@ -543,6 +608,7 @@ Game_SplitParty.prototype.clear = function () {
         if ($gameSplitParty.isSplitParty()) {
             PluginParams.prototype.parse(splitPartyParams);
             $splitParty.setEndParams(splitPartyParams);
+            $gameSplitParty.setExclusionActorIdList(splitPartyParams);
             SceneManager.push(Scene_EndSplitParty);
         }
     });
@@ -566,6 +632,8 @@ Game_SplitParty.prototype.clear = function () {
         this._setupMapId = 0;
         this._addActorIdList = [];
         this._addMemberVariableList = [];
+        this._requiredActorList = [];
+        this._fixedActorIdList = [];
         this._partyPos1 = {};
         this._partyPos2 = {};
         this._partyPos3 = {};
@@ -582,6 +650,7 @@ Game_SplitParty.prototype.clear = function () {
         this._partySize = splitPartyParams.partySize;
         this._addActorIdList = splitPartyParams.addActorIdList;
         this._addMemberVariableList = splitPartyParams.addMemberVariableList;
+        this._requiredActorList = splitPartyParams.requiredActorList;
         this._partyPos2 = splitPartyParams.partyPos2;
         this._partyPos3 = splitPartyParams.partyPos3;
         this._partyPos4 = splitPartyParams.partyPos4;
@@ -593,6 +662,26 @@ Game_SplitParty.prototype.clear = function () {
 
     SplitParty.prototype.cancelSwitchId = function () {
         return this._cancelSwitchId;
+    };
+
+    SplitParty.prototype.requiredActorList = function () {
+        return this._requiredActorList ? this._requiredActorList.filter((requiredActor) => requiredActor.fixedParty === 0) : [];
+    };
+
+    SplitParty.prototype.fixedActorList = function () {
+        return this._requiredActorList ? this._requiredActorList.filter((requiredActor) => requiredActor.fixedParty !== 0) : [];
+    };
+
+    SplitParty.prototype.isRequiredActor = function (actor) {
+        return this._requiredActorList && this._requiredActorList.some((requiredActor) => requiredActor.actorId === actor.actorId());
+    };
+
+    SplitParty.prototype.addFixedActorId = function (actorId) {
+        return this._fixedActorIdList.push(actorId);
+    };
+
+    SplitParty.prototype.isFixedActor = function (actor) {
+        return this._fixedActorIdList.includes(actor.actorId());
     };
 
     SplitParty.prototype.partySize = function () {
@@ -905,6 +994,64 @@ Game_SplitParty.prototype.clear = function () {
         this._setMemberCancelCommandWindow.hide();
         this._setMemberCancelCommandWindow.deactivate();
         this._selectMemberStatusWindow.setActor(this._selectMemberWindow.item());
+
+        this.setRequiredActor();
+    };
+
+    Scene_SplitParty.prototype.setRequiredActor = function () {
+        const fixedActorList = $splitParty.fixedActorList();
+        const requiredActorList = $splitParty.requiredActorList();
+
+        fixedActorList.forEach((fixedActor) => {
+            const actor = $gameActors.actor(fixedActor.actorId);
+
+            $splitParty.addFixedActorId(fixedActor.actorId);
+
+            if (!this._selectPartyWindow1.isMaxMember() && fixedActor.fixedParty === 1) {
+                this._selectPartyWindow1.addItem(actor);
+                this._selectMemberWindow.addActor(actor);
+            } else if (this._selectPartyWindow2 && !this._selectPartyWindow2.isMaxMember() && fixedActor.fixedParty === 2) {
+                this._selectPartyWindow2.addItem(actor);
+                this._selectMemberWindow.addActor(actor);
+            } else if (this._selectPartyWindow3 && !this._selectPartyWindow3.isMaxMember() && fixedActor.fixedParty === 3) {
+                this._selectPartyWindow3.addItem(actor);
+                this._selectMemberWindow.addActor(actor);
+            } else if (this._selectPartyWindow4 && !this._selectPartyWindow4.isMaxMember() && fixedActor.fixedParty === 4) {
+                this._selectPartyWindow4.addItem(actor);
+                this._selectMemberWindow.addActor(actor);
+            }
+        });
+
+        requiredActorList.forEach((requiredActor) => {
+            const actor = $gameActors.actor(requiredActor.actorId);
+
+            if (!this._selectPartyWindow1.isMaxMember()) {
+                this._selectPartyWindow1.addItem(actor);
+                this._selectMemberWindow.addActor(actor);
+            } else if (this._selectPartyWindow2 && !this._selectPartyWindow2.isMaxMember()) {
+                this._selectPartyWindow2.addItem(actor);
+                this._selectMemberWindow.addActor(actor);
+            } else if (this._selectPartyWindow3 && !this._selectPartyWindow3.isMaxMember()) {
+                this._selectPartyWindow3.addItem(actor);
+                this._selectMemberWindow.addActor(actor);
+            } else if (this._selectPartyWindow4 && !this._selectPartyWindow4.isMaxMember()) {
+                this._selectPartyWindow4.addItem(actor);
+                this._selectMemberWindow.addActor(actor);
+            }
+        });
+
+        if (fixedActorList.length > 0 || requiredActorList.length > 0) {
+            this._selectPartyWindow1.select(0);
+            this._selectPartyWindow2.deSelectWindow();
+            this._selectPartyWindow3.deSelectWindow();
+            this._selectPartyWindow4.deSelectWindow();
+
+            this._selectPartyWindow1.refresh();
+            this._selectPartyWindow2.refresh();
+            this._selectPartyWindow3.refresh();
+            this._selectPartyWindow4.refresh();
+            this._selectMemberWindow.refresh();
+        }
     };
 
     Scene_SplitParty.prototype.createSelectPartyWindow = function () {
@@ -1010,50 +1157,67 @@ Game_SplitParty.prototype.clear = function () {
         let selectPartyWindow = null;
         let nextPartyWindow = null;
 
-        if (this._selectPartyWindow1.isSelectWindow()) {
-            selectPartyWindow = this._selectPartyWindow1;
-            nextPartyWindow = this._selectPartyWindow2;
-        } else if (this._selectPartyWindow2.isSelectWindow()) {
-            selectPartyWindow = this._selectPartyWindow2;
-            if (this._selectPartyWindow3) {
-                nextPartyWindow = this._selectPartyWindow3;
+        if ($splitParty.isFixedActor(item)) {
+            SoundManager.playBuzzer();
+        } else {
+            if (this._selectPartyWindow1.isSelectWindow()) {
+                selectPartyWindow = this._selectPartyWindow1;
+                nextPartyWindow = this._selectPartyWindow2;
+            } else if (this._selectPartyWindow2.isSelectWindow()) {
+                selectPartyWindow = this._selectPartyWindow2;
+                if (this._selectPartyWindow3) {
+                    nextPartyWindow = this._selectPartyWindow3;
+                }
+            } else if (this._selectPartyWindow3 && this._selectPartyWindow3.isSelectWindow()) {
+                selectPartyWindow = this._selectPartyWindow3;
+                if (this._selectPartyWindow4) {
+                    nextPartyWindow = this._selectPartyWindow4;
+                }
+            } else if (this._selectPartyWindow4 && this._selectPartyWindow4.isSelectWindow()) {
+                selectPartyWindow = this._selectPartyWindow4;
             }
-        } else if (this._selectPartyWindow3 && this._selectPartyWindow3.isSelectWindow()) {
-            selectPartyWindow = this._selectPartyWindow3;
-            if (this._selectPartyWindow4) {
-                nextPartyWindow = this._selectPartyWindow4;
-            }
-        } else if (this._selectPartyWindow4 && this._selectPartyWindow4.isSelectWindow()) {
-            selectPartyWindow = this._selectPartyWindow4;
-        }
 
-        if (selectPartyWindow) {
-            if (selectPartyWindow.isAddItem(item)) {
-                selectPartyWindow.removeItem(item);
-                this._selectMemberWindow.removeActor(item);
-            } else {
-                if (this._selectMemberWindow.isSetActor(item)) {
-                    this.removeSetItem(this._selectPartyWindow1, item);
-                    this.removeSetItem(this._selectPartyWindow2, item);
-                    this.removeSetItem(this._selectPartyWindow3, item);
-                    this.removeSetItem(this._selectPartyWindow4, item);
-                } else {
-                    if (selectPartyWindow.isMaxMember()) {
+            if (selectPartyWindow) {
+                if (selectPartyWindow.isAddItem(item)) {
+                    if ($splitParty.isRequiredActor(item)) {
                         SoundManager.playBuzzer();
                     } else {
-                        selectPartyWindow.addItem(item);
-                        this._selectMemberWindow.addActor(item);
+                        selectPartyWindow.removeItem(item);
+                        this._selectMemberWindow.removeActor(item);
+                    }
+                } else {
+                    if ($splitParty.isRequiredActor(item) && selectPartyWindow.isMaxMember()) {
+                        SoundManager.playBuzzer();
+                    } else {
+                        if (this._selectMemberWindow.isSetActor(item)) {
+                            this.removeSetItem(this._selectPartyWindow1, item);
+                            this.removeSetItem(this._selectPartyWindow2, item);
+                            this.removeSetItem(this._selectPartyWindow3, item);
+                            this.removeSetItem(this._selectPartyWindow4, item);
 
-                        if (selectPartyWindow.isMaxMember() && nextPartyWindow) {
-                            selectPartyWindow.deSelectWindow();
-                            nextPartyWindow.selectWindow();
-                            nextPartyWindow.refresh();
+                            if ($splitParty.isRequiredActor(item)) {
+                                selectPartyWindow.addItem(item);
+                                this._selectMemberWindow.addActor(item);
+                            }
+                        } else {
+                            if (selectPartyWindow.isMaxMember()) {
+                                SoundManager.playBuzzer();
+                            } else {
+                                selectPartyWindow.addItem(item);
+                                this._selectMemberWindow.addActor(item);
+
+                                if (selectPartyWindow.isMaxMember() && nextPartyWindow) {
+                                    selectPartyWindow.deSelectWindow();
+                                    nextPartyWindow.selectWindow();
+                                    nextPartyWindow.refresh();
+                                }
+                            }
                         }
                     }
                 }
+                selectPartyWindow.refresh();
+                this._selectMemberWindow.refresh();
             }
-            selectPartyWindow.refresh();
-            this._selectMemberWindow.refresh();
         }
     };
 
@@ -1156,7 +1320,7 @@ Game_SplitParty.prototype.clear = function () {
     Scene_SplitParty.prototype.setPartyPos = function (id) {
         switch (id) {
             case 1:
-                $gameSplitParty.setPartyPos(id, { x: -1, y: -1 });
+                $gameSplitParty.setPartyPos(id, { mapId: 0, x: -1, y: -1 });
                 break;
 
             case 2:
