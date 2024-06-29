@@ -200,7 +200,7 @@
     if (PluginManager.registerCommand) {
         PluginManager.registerCommand("111_InputForm", "show", function (args) {
             var { target_x, target_y, variables_id, max_count, if_switch_id, button_x, button_y, unit_font_size, placeholder, css_input_form, submit_text } = args;
-            this._inputForm(+target_x, +target_y, +variables_id, +max_count, +if_switch_id, +button_x, +button_y, +unit_font_size, +placeholder, +css_input_form, submit_text);
+            this._inputForm(+target_x, +target_y, +variables_id, +max_count, +if_switch_id, +button_x, +button_y, +unit_font_size, placeholder, css_input_form, submit_text);
         });
     }
 
