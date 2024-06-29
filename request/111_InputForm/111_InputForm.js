@@ -116,6 +116,11 @@
  * @type string
  * @default _111_input
  * @text 入力フォーム(CSS)
+ *
+ * @arg submit_text
+ * @type string
+ * @default 決定
+ * @text 決定ボタン
  */
 (function () {
     function stopPropagation(event) {
@@ -176,7 +181,7 @@
     Game_Interpreter.prototype.pluginCommand = function (command, args) {
         _Game_Interpreter_pluginCommand.call(this, command, args);
         if (command === "InputForm") {
-            var _ary = argHash(args[0], ["x", "y", "v", "max", "if_s", "btn_x", "btn_y", "font_size", "placeholder", "input_form"]);
+            var _ary = argHash(args[0], ["x", "y", "v", "max", "if_s", "btn_x", "btn_y", "font_size", "placeholder", "input_form", "submit_text"]);
             var target_x = +_ary[0];
             var target_y = +_ary[1];
             var variables_id = +_ary[2];
@@ -187,18 +192,19 @@
             var unit_font_size = _ary[7] === "" || isNaN(_ary[7]) ? 24 : +_ary[7];
             var placeholder = _ary[8];
             var css_input_form = _ary[9];
-            this._inputForm(target_x, target_y, variables_id, max_count, if_switch_id, button_x, button_y, unit_font_size, placeholder, css_input_form);
+            var submit_text = _ary[10];
+            this._inputForm(target_x, target_y, variables_id, max_count, if_switch_id, button_x, button_y, unit_font_size, placeholder, css_input_form, submit_text);
         }
     };
 
     if (PluginManager.registerCommand) {
         PluginManager.registerCommand("111_InputForm", "show", function (args) {
-            var { target_x, target_y, variables_id, max_count, if_switch_id, button_x, button_y, unit_font_size, placeholder, css_input_form } = args;
-            this._inputForm(+target_x, +target_y, +variables_id, +max_count, +if_switch_id, +button_x, +button_y, +unit_font_size, +placeholder, css_input_form);
+            var { target_x, target_y, variables_id, max_count, if_switch_id, button_x, button_y, unit_font_size, placeholder, css_input_form, submit_text } = args;
+            this._inputForm(+target_x, +target_y, +variables_id, +max_count, +if_switch_id, +button_x, +button_y, +unit_font_size, +placeholder, +css_input_form, submit_text);
         });
     }
 
-    Game_Interpreter.prototype._inputForm = function (target_x, target_y, variables_id, max_count, if_switch_id, button_x, button_y, unit_font_size, placeholder, css_input_form) {
+    Game_Interpreter.prototype._inputForm = function (target_x, target_y, variables_id, max_count, if_switch_id, button_x, button_y, unit_font_size, placeholder, css_input_form, submit_text) {
         var interpreter = this;
         var gui = {
             input: null,
@@ -225,7 +231,7 @@
                 this.submit = document.createElement("input");
                 this.submit.setAttribute("type", "submit");
                 this.submit.setAttribute("id", "_111_submit");
-                this.submit.setAttribute("value", "決定");
+                this.submit.setAttribute("value", submit_text);
                 document.body.appendChild(this.submit);
             },
             success: function () {
