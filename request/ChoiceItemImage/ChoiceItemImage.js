@@ -312,7 +312,7 @@
 
     Window_ChoiceHelp.prototype.imageX = function (x, width, origin) {
         if (origin === 0) {
-            return 0;
+            return x;
         } else {
             return Math.floor(ImageManager.faceWidth / 2 - width / 2) + x;
         }
@@ -320,7 +320,7 @@
 
     Window_ChoiceHelp.prototype.imageY = function (y, height, origin) {
         if (origin === 0) {
-            return 0;
+            return y;
         } else {
             return Math.floor(ImageManager.faceHeight / 2 - height / 2) + y;
         }
