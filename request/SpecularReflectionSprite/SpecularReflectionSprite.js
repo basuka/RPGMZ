@@ -96,6 +96,9 @@
     const terrainIds = params.terrainIds;
     const offsetYVariableId = params.offsetYVariableID || 0;
 
+    //-----------------------------------------------------------------------------
+    // Game_CharacterBase
+    //-----------------------------------------------------------------------------
     Game_CharacterBase.prototype.isReflect = function () {
         return true;
     };
@@ -104,6 +107,9 @@
         return false;
     };
 
+    //-----------------------------------------------------------------------------
+    // Game_Event
+    //-----------------------------------------------------------------------------
     Game_Event.prototype.isReflect = function () {
         return !(this.event().meta["鏡像表示なし"] || this.event().meta["NoReflection"]);
     };
@@ -122,6 +128,9 @@
         return 0;
     };
 
+    //-----------------------------------------------------------------------------
+    // Sprite_Specular
+    //-----------------------------------------------------------------------------
     function Sprite_Specular() {
         this.initialize.apply(this, arguments);
     }
@@ -194,6 +203,9 @@
         return offsetY;
     };
 
+    //-----------------------------------------------------------------------------
+    // Spriteset_Map
+    //-----------------------------------------------------------------------------
     const _Spriteset_Map_CreateParallax = Spriteset_Map.prototype.createParallax;
     Spriteset_Map.prototype.createParallax = function () {
         _Spriteset_Map_CreateParallax.apply(this, arguments);
