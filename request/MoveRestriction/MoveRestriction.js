@@ -222,7 +222,7 @@
 
             $gameTemp.updateMoveRestrictionCount();
 
-            if ($gameTemp.isMoveRestriction()) {
+            if (!$gameTemp.isMoveRestriction()) {
                 $gameParty.members()[0].removeState(moveRestriction.stateId);
             }
         } else {
