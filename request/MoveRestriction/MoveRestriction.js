@@ -92,6 +92,7 @@
  * @param restrictionCount
  * @text 解除カウント
  * @type number
+ * @min 1
  * @default 1
  * @desc 移動制限が解除されるまでのカウント(キー入力)を設定
  *       解除されるとステートも同時に解除されます
