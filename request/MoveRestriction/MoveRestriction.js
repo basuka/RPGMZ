@@ -29,6 +29,9 @@
  * 　移動制限中に移動(移動不可も含む)を行った場合に表示するメッセージの設定を行います。
  * 　未設定の場合、メッセージは表示されません。
  *
+ * ■メニュー制限
+ * メニュー機能を制限するステートの設定を行います。
+ *
  * ■優先度
  * 移動制限の優先度の設定を行います。
  * 複数ステート(移動制限)が付与されている場合、優先度順に移動制限が発生します。
@@ -44,6 +47,11 @@
  * @text 移動制限
  * @type struct<moveRestriction>[]
  * @desc 先頭メンバーのステートに対する移動制限を設定
+ *
+ * @param menuRestrictionStateIds
+ * @text メニュー制限
+ * @type state[]
+ * @desc メニューを制限するステートを設定
  *
  * @param prioritys
  * @text 優先度
@@ -149,6 +157,7 @@
 
     const params = PluginParams.prototype.parse(PluginManager.parameters(Plugin_Name));
 
+    const menuRestrictionStateIds = params.menuRestrictionStateIds;
     const prioritys = params.prioritys;
     const moveRestrictions = (() => {
         const setParams = {};
@@ -165,25 +174,20 @@
         return setParams;
     })();
 
+    const _Scene_Map_IsMenuEnabled = Scene_Map.prototype.isMenuEnabled;
+    Scene_Map.prototype.isMenuEnabled = function () {
+        return (
+            _Scene_Map_IsMenuEnabled.apply(this, arguments) &&
+            !$gameParty
+                .leader()
+                .states()
+                .some((state) => $gamePlayer.isMenuRestriction(state))
+        );
+    };
+
     const _Game_Player_ExecuteMove = Game_Player.prototype.executeMove;
     Game_Player.prototype.executeMove = function (direction) {
-        const states = $gameParty.members()[0].states();
-        if (states && !$gameTemp.isMoveRestriction()) {
-            for (const priority of prioritys) {
-                for (const state of states) {
-                    const moveRestriction = moveRestrictions[state.id];
-                    if (moveRestriction && moveRestriction.moveRestrictionType === priority) {
-                        $gameTemp.setMoveRestriction(moveRestriction);
-                        break;
-                    }
-                }
-
-                if ($gameTemp.isMoveRestriction()) {
-                    break;
-                }
-            }
-        }
-
+        console.log($gameParty.leader());
         if ($gameTemp.isMoveRestriction()) {
             const moveRestriction = $gameTemp.moveRestriction();
             switch (moveRestriction.moveRestrictionType) {
@@ -224,11 +228,46 @@
             $gameTemp.updateMoveRestrictionCount();
 
             if (!$gameTemp.isMoveRestriction()) {
-                $gameParty.members()[0].removeState(moveRestriction.stateId);
+                $gameParty.leader().removeState(moveRestriction.stateId);
             }
         } else {
             _Game_Player_ExecuteMove.apply(this, arguments);
         }
+    };
+
+    const _Game_Player_Update = Game_Player.prototype.update;
+    Game_Player.prototype.update = function (sceneActive) {
+        this.setRestriction();
+        _Game_Player_Update.apply(this, arguments);
+    };
+
+    Game_Player.prototype.setRestriction = function () {
+        const states = $gameParty.leader().states();
+
+        if ($gameTemp.isMoveRestriction()) {
+            if (states) {
+                const moveRestriction = $gameTemp.moveRestriction();
+                if (!states.some((state) => state.id === moveRestriction.stateId)) {
+                    $gameTemp.clearMoveRestriction();
+                }
+            }
+        }
+
+        if (states && !$gameTemp.isMoveRestriction()) {
+            for (const priority of prioritys) {
+                for (const state of states) {
+                    const moveRestriction = moveRestrictions[state.id];
+                    if (moveRestriction && moveRestriction.moveRestrictionType === priority) {
+                        $gameTemp.setMoveRestriction(moveRestriction);
+                        return;
+                    }
+                }
+            }
+        }
+    };
+
+    Game_Player.prototype.isMenuRestriction = function (state) {
+        return menuRestrictionStateIds ? menuRestrictionStateIds.some((stateId) => state.id === stateId) : false;
     };
 
     const _Game_Temp_Initialize = Game_Temp.prototype.initialize;
@@ -241,6 +280,11 @@
     Game_Temp.prototype.setMoveRestriction = function (moveRestriction) {
         this._moveRestriction = moveRestriction;
         this._restrictionCount = moveRestriction.restrictionCount;
+    };
+
+    Game_Temp.prototype.clearMoveRestriction = function () {
+        this._moveRestriction = null;
+        this._restrictionCount = 0;
     };
 
     Game_Temp.prototype.isMoveRestriction = function () {
