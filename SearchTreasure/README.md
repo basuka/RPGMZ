@@ -47,6 +47,19 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/SearchTreasure/SearchTreasur
 ![Image](/SearchTreasure/image/image6.png)</br>
 ※画像のイベントではツクールの「イベントの簡単作成」で設定した宝箱イベントの一番最後に設定しています
 
+</br>
+</br>
+
+探索スキル・調査スキルの設定例</br>
+
+探索スキル</br>
+![Image](/SearchTreasure/image/image8.png)</br>
+
+</br>
+</br>
+
+調査スキル</br>
+![Image](/SearchTreasure/image/image9.png)</br>
 
 </br>
 </br>
