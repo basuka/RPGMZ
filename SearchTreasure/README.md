@@ -6,13 +6,24 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/SearchTreasure/SearchTreasur
 
 </br>
 
+【探索スキル】</br>
 ![Image](/SearchTreasure/image/image1.png)</br>
 ![Image](/SearchTreasure/image/image2.png) ![Image](/SearchTreasure/image/image7.png)</br>
 
 </br>
 
+【調査スキル】</br>
 ![Image](/SearchTreasure/image/image3.png)</br>
-![Image](/SearchTreasure/image/image4.png) ![Image](/SearchTreasure/image/image5.png)</br>
+
+</br>
+
+グラフィックあり(宝箱など)</br>
+![Image](/SearchTreasure/image/image4.png)</br>
+
+</br>
+
+グラフィックなし(隠しアイテムなど)</br>
+![Image](/SearchTreasure/image/image5.png)</br>
 
 </br>
 
