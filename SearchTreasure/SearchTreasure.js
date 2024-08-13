@@ -3,7 +3,7 @@
 //=============================================================================
 /*:ja
  * @target MZ
- * @plugindesc 宝箱探索スキルを設定します。
+ * @plugindesc 宝物探索スキルを設定します。
  * @author Basu
  * @url https://raw.githubusercontent.com/basuka/RPGMZ/main/SearchTreasure/SearchTreasure.js
  *
