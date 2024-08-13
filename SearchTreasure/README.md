@@ -1,7 +1,7 @@
-宝箱探索スキル機能を実装します。</br>
+宝物探索スキル機能を実装します。</br>
 現在のマップに残っている宝の数を知らせる探索スキル及び、宝の位置を知らせる調査スキルを実装します。</br>
 
-【宝箱探索スキル】</br>
+【宝物探索スキル】</br>
 https://raw.githubusercontent.com/basuka/RPGMZ/main/SearchTreasure/SearchTreasure.js</br>
 
 </br>
