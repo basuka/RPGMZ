@@ -10,18 +10,24 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/LostItem/LostItem.js</br>
 
 【所持品紛失】</br>
 ![Image](/LostItem/image/image1.png)</br>
+■所持金</br>
 ![Image](/LostItem/image/image2.png)</br>
+■アイテム</br>
 ![Image](/LostItem/image/image3.png) ![Image](/LostItem/image/image4.png)</br>
 ![Image](/LostItem/image/image5.png) ![Image](/LostItem/image/image6.png)</br>
+■装備品</br>
 ![Image](/LostItem/image/image7.png)</br>
 
 </br>
 
 【アイテム復元】</br>
 ![Image](/LostItem/image/image8.png)</br>
+■所持金</br>
 ![Image](/LostItem/image/image9.png)</br>
+■アイテム</br>
 ![Image](/LostItem/image/image10.png) ![Image](/LostItem/image/image11.png)</br>
 ![Image](/LostItem/image/image12.png) ![Image](/LostItem/image/image13.png)</br>
+■装備品</br>
 ![Image](/LostItem/image/image14.png)</br>
 
 </br>
