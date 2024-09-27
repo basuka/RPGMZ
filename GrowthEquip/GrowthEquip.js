@@ -127,6 +127,8 @@
  * 更新履歴
  *-----------------------------------------------------------------------------
  * 2024/9/26 Ver.1.0.0　公開
+ * 2024/9/27 Ver.1.0.1　必要経験値の上限を設定するよう修正
+ *                      装備レベルが最大時に不要な経験値が加算されないよう修正
  *
  *=====================================================================================================================================================
  * @param growthWeaponInfos
@@ -237,6 +239,7 @@
  * @text 必要経験値
  * @type number
  * @min 1
+ * @max 99999999
  * @default 1
  * @desc 必要な経験値を設定
  *
@@ -385,10 +388,14 @@ Game_GrowthEquip.prototype.setup = function (params) {
 
 Game_GrowthEquip.prototype.gainExp = function (exp) {
     this._growthEquipInfos.forEach((growthEquipInfo) => {
-        const item = this.typeEquip(growthEquipInfo);
+        const nextLevelInfo = this.nextLevelInfo(growthEquipInfo);
 
-        if (this.isEquipped(item)) {
-            this.changeExp(exp, growthEquipInfo, item);
+        if (nextLevelInfo) {
+            const item = this.typeEquip(growthEquipInfo);
+
+            if (this.isEquipped(item)) {
+                this.changeExp(exp, growthEquipInfo, item);
+            }
         }
     });
 };
@@ -727,19 +734,19 @@ Game_GrowthEquip.prototype.levelUpMsg = function () {
         const growthEquipInfo = this.growthEquipInfo(item);
 
         let level = "-";
-        let exp = "------";
-        let nextExp = "------";
+        let exp = "--------";
+        let nextExp = "--------";
 
         if (growthEquipInfo) {
             const nextLevelInfo = $gameGrowthEquip.nextLevelInfo(growthEquipInfo);
 
             if (nextLevelInfo) {
                 level = growthEquipInfo.level;
+                exp = growthEquipInfo.exp;
                 nextExp = nextLevelInfo.exp;
             } else {
                 level = "MAX";
             }
-            exp = growthEquipInfo.exp;
         } else {
             this.changePaintOpacity(false);
         }
