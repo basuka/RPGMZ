@@ -129,6 +129,7 @@
  * 2024/9/26 Ver.1.0.0　公開
  * 2024/9/27 Ver.1.0.1　必要経験値の上限を設定するよう修正
  *                      装備レベルが最大時に不要な経験値が加算されないよう修正
+ * 2024/9/28 Ver.1.0.2  獲得経験値の小数点以下を丸めるよう修正
  *
  *=====================================================================================================================================================
  * @param growthWeaponInfos
@@ -500,7 +501,7 @@ Game_GrowthEquip.prototype.typeEquip = function (growthEquipInfo) {
 };
 
 Game_GrowthEquip.prototype.calcExp = function (exp) {
-    return exp * (this._expRatio * 0.01);
+    return Math.floor(exp * (this._expRatio * 0.01));
 };
 
 Game_GrowthEquip.prototype.canUseSkill = function (skill) {
