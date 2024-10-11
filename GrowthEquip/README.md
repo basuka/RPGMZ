@@ -97,5 +97,38 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/GrowthEquip/GrowthEquip.js</
 </br>
 </br>
 
+<B>レベルアップ情報取得(スクリプト)</B></br>
+
+「GrowthEquipManager.increaseParam(actor)」関数から以下の情報の取得を行うことができます。</br>
+
+| プロパティ | 取得項目 |
+| :--- | :--- |
+|actorId|アクターID|
+|w_levelInfos[id].name|武器名|
+|w_levelInfos[id].level|武器レベルの上昇値|
+|a_levelInfos[id].name|防具名|
+|a_levelInfos[id].level|防具レベルの上昇値|
+|atk|攻撃力の上昇値|
+|def|防御力の上昇値|
+|mat|魔法力の上昇値|
+|mdf|魔法防御の上昇値|
+|agi|敏捷性の上昇値|
+|luk|運の上昇値|
+|mhp|最大HPの上昇値|
+|mmp|最大MPの上昇値|
+
+※1　w_levelInfos・a_levelInfosのidはデータベースのIDとなります。</br>
+※2　レベルアップをしていない場合w_levelInfos・a_levelInfosは空となります。</br>
+
+</br>
+
+【攻撃力の上昇値を取得する使用例】</br>
+
+const increaseParam = GrowthEquipManager.increaseParam(actor);</br>
+const atk = increaseParam.atk;</br>
+
+</br>
+</br>
+
 <B>■利用規約</B></br>
 このプラグインはMITライセンスで配布しています
