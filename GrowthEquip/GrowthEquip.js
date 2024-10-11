@@ -112,6 +112,33 @@
  * %2：レベル単位(テキスト)
  * %3：成長装備のレベル
  *
+ *
+ * ■レベルアップ情報取得(スクリプト)
+ * GrowthEquipManager.increaseParam(actor)関数からレベルアップ情報の取得を行うことができます。
+ * 取得できる情報は以下の情報となります。
+ *
+ * actorId：アクターID
+ * w_levelInfos[id].name：武器名
+ * w_levelInfos[id].level：武器レベルの上昇値
+ * a_levelInfos[id].name：防具名
+ * a_levelInfos[id].level：防具レベルの上昇値
+ * atk:攻撃力の上昇値
+ * def:防御力の上昇値
+ * mat:魔法力の上昇値
+ * mdf:魔法防御の上昇値
+ * agi:敏捷性の上昇値
+ * luk:運の上昇値
+ * mhp:最大HPの上昇値
+ * mmp:最大MPの上昇値
+ *
+ * ※1　w_levelInfos・a_levelInfosのidはデータベースのIDとなります。
+ * ※2　レベルアップをしていない場合w_levelInfos・a_levelInfosは空となります。
+ *
+ * 【攻撃力の上昇値を取得する使用例】
+ *
+ * const increaseParam = GrowthEquipManager.increaseParam(actor);
+ * const atk = increaseParam.atk;
+ *
  *-----------------------------------------------------------------------------
  * README
  *-----------------------------------------------------------------------------
@@ -130,6 +157,7 @@
  * 2024/9/27 Ver.1.0.1　必要経験値の上限を設定するよう修正
  *                      装備レベルが最大時に不要な経験値が加算されないよう修正
  * 2024/9/28 Ver.1.0.2  獲得経験値の小数点以下を丸めるよう修正
+ * 2024/10/12 Ver.1.0.3　レベルアップ情報を取得する関数を実装
  *
  *=====================================================================================================================================================
  * @param growthWeaponInfos
@@ -318,6 +346,91 @@
 $gameGrowthEquip = null;
 
 //-----------------------------------------------------------------------------
+// GrowthEquipManager
+//-----------------------------------------------------------------------------
+function GrowthEquipManager() {
+    throw new Error("This is a static class");
+}
+
+GrowthEquipManager.setup = function () {
+    this._gainExp = 0;
+    this._increaseParams = {};
+
+    $gameParty.battleMembers().forEach((actor) => {
+        const increaseParam = {};
+        increaseParam.actorId = actor.actorId();
+        increaseParam.w_levelInfos = {};
+        increaseParam.a_levelInfos = {};
+        increaseParam.atk = 0;
+        increaseParam.def = 0;
+        increaseParam.mat = 0;
+        increaseParam.mdf = 0;
+        increaseParam.agi = 0;
+        increaseParam.luk = 0;
+        increaseParam.mhp = 0;
+        increaseParam.mmp = 0;
+
+        this._increaseParams[actor.actorId()] = increaseParam;
+    });
+};
+
+GrowthEquipManager.setGainExp = function (gainExp) {
+    this._gainExp = gainExp;
+};
+
+GrowthEquipManager.addLevel = function (growthEquipInfo) {
+    const actorId = growthEquipInfo.actorId;
+    const itemId = growthEquipInfo.id;
+
+    const increaseParam = this._increaseParams[actorId];
+
+    if (growthEquipInfo.type === Game_GrowthEquip.TYPE_WEAPON) {
+        const weapon = $dataWeapons[itemId];
+
+        if (itemId in increaseParam.w_levelInfos) {
+            const levelInfo = increaseParam.w_levelInfos[itemId];
+            levelInfo.level += 1;
+        } else {
+            const levelInfo = {};
+            levelInfo.name = weapon.name;
+            levelInfo.level = 1;
+
+            increaseParam.w_levelInfos[itemId] = levelInfo;
+        }
+    } else {
+        const armor = $dataArmors[itemId];
+
+        if (itemId in increaseParam.a_levelInfos) {
+            const levelInfo = increaseParam.a_levelInfos[itemId];
+            levelInfo.level += 1;
+        } else {
+            const levelInfo = {};
+            levelInfo.name = armor.name;
+            levelInfo.level = 1;
+
+            increaseParam.a_levelInfos[itemId] = levelInfo;
+        }
+    }
+};
+
+GrowthEquipManager.addParam = function (growthEquipInfo, levelInfo) {
+    const increaseParam = this._increaseParams[growthEquipInfo.actorId];
+
+    increaseParam.atk += levelInfo.atk;
+    increaseParam.def += levelInfo.def;
+    increaseParam.mat += levelInfo.mat;
+    increaseParam.mdf += levelInfo.mdf;
+    increaseParam.agi += levelInfo.agi;
+    increaseParam.luk += levelInfo.luk;
+    increaseParam.mhp += levelInfo.mhp;
+    increaseParam.mmp += levelInfo.mmp;
+};
+
+GrowthEquipManager.increaseParam = function (actor) {
+    return this._increaseParams[actor.actorId()];
+};
+
+//-----------------------------------------------------------------------------
 // Game_GrowthEquip
 //-----------------------------------------------------------------------------
 function Game_GrowthEquip() {
@@ -338,45 +451,45 @@ Game_GrowthEquip.prototype.initialize = function (params) {
 
 Game_GrowthEquip.prototype.setup = function (params) {
     params.growthWeaponInfos.forEach((growthWeaponInfo) => {
-        const growthEquips = {};
-        growthEquips.id = growthWeaponInfo.itemId;
-        growthEquips.actorId = growthWeaponInfo.actorId;
-        growthEquips.type = Game_GrowthEquip.TYPE_WEAPON;
-        growthEquips.levelInfos = growthWeaponInfo.levelInfos;
-        growthEquips.level = 1;
-        growthEquips.exp = 0;
+        const growthEquipInfo = {};
+        growthEquipInfo.id = growthWeaponInfo.itemId;
+        growthEquipInfo.actorId = growthWeaponInfo.actorId;
+        growthEquipInfo.type = Game_GrowthEquip.TYPE_WEAPON;
+        growthEquipInfo.levelInfos = growthWeaponInfo.levelInfos;
+        growthEquipInfo.level = 1;
+        growthEquipInfo.exp = 0;
 
-        growthEquips.atk = 0;
-        growthEquips.def = 0;
-        growthEquips.mat = 0;
-        growthEquips.mdf = 0;
-        growthEquips.agi = 0;
-        growthEquips.luk = 0;
-        growthEquips.mhp = 0;
-        growthEquips.mmp = 0;
+        growthEquipInfo.atk = 0;
+        growthEquipInfo.def = 0;
+        growthEquipInfo.mat = 0;
+        growthEquipInfo.mdf = 0;
+        growthEquipInfo.agi = 0;
+        growthEquipInfo.luk = 0;
+        growthEquipInfo.mhp = 0;
+        growthEquipInfo.mmp = 0;
 
-        this._growthEquipInfos.push(growthEquips);
+        this._growthEquipInfos.push(growthEquipInfo);
     });
 
     params.growthArmorInfos.forEach((growthArmorInfo) => {
-        const growthEquips = {};
-        growthEquips.id = growthArmorInfo.itemId;
-        growthEquips.actorId = growthArmorInfo.actorId;
-        growthEquips.type = Game_GrowthEquip.TYPE_ARMOR;
-        growthEquips.levelInfos = growthArmorInfo.levelInfos;
-        growthEquips.level = 1;
-        growthEquips.exp = 0;
+        const growthEquipInfo = {};
+        growthEquipInfo.id = growthArmorInfo.itemId;
+        growthEquipInfo.actorId = growthArmorInfo.actorId;
+        growthEquipInfo.type = Game_GrowthEquip.TYPE_ARMOR;
+        growthEquipInfo.levelInfos = growthArmorInfo.levelInfos;
+        growthEquipInfo.level = 1;
+        growthEquipInfo.exp = 0;
 
-        growthEquips.atk = 0;
-        growthEquips.def = 0;
-        growthEquips.mat = 0;
-        growthEquips.mdf = 0;
-        growthEquips.agi = 0;
-        growthEquips.luk = 0;
-        growthEquips.mhp = 0;
-        growthEquips.mmp = 0;
+        growthEquipInfo.atk = 0;
+        growthEquipInfo.def = 0;
+        growthEquipInfo.mat = 0;
+        growthEquipInfo.mdf = 0;
+        growthEquipInfo.agi = 0;
+        growthEquipInfo.luk = 0;
+        growthEquipInfo.mhp = 0;
+        growthEquipInfo.mmp = 0;
 
-        this._growthEquipInfos.push(growthEquips);
+        this._growthEquipInfos.push(growthEquipInfo);
     });
 
     this._expRatio = params.expRatio;
@@ -388,6 +501,10 @@ Game_GrowthEquip.prototype.setup = function (params) {
 };
 
 Game_GrowthEquip.prototype.gainExp = function (exp) {
+    const calcExp = this.calcExp(Math.max(exp, 0));
+
+    GrowthEquipManager.setGainExp(calcExp);
+
     this._growthEquipInfos.forEach((growthEquipInfo) => {
         const nextLevelInfo = this.nextLevelInfo(growthEquipInfo);
 
@@ -395,14 +512,14 @@ Game_GrowthEquip.prototype.gainExp = function (exp) {
             const item = this.typeEquip(growthEquipInfo);
 
             if (this.isEquipped(item)) {
-                this.changeExp(exp, growthEquipInfo, item);
+                this.changeExp(calcExp, growthEquipInfo, item);
             }
         }
     });
 };
 
 Game_GrowthEquip.prototype.changeExp = function (exp, growthEquipInfo, item) {
-    growthEquipInfo.exp += this.calcExp(Math.max(exp, 0));
+    growthEquipInfo.exp += exp;
     const lastLevel = growthEquipInfo.level;
 
     const newSkills = [];
@@ -434,6 +551,9 @@ Game_GrowthEquip.prototype.levelUp = function (growthEquipInfo, nextLevelInfo, i
 
     this.addParams(item, growthEquipInfo, nextLevelInfo);
 
+    GrowthEquipManager.addLevel(growthEquipInfo);
+    GrowthEquipManager.addParam(growthEquipInfo, nextLevelInfo);
+
     if (nextLevelInfo.skillId && nextLevelInfo.skillId > 0) {
         const actor = this.equipActor(growthEquipInfo);
         actor.learnSkill(nextLevelInfo.skillId);
@@ -453,7 +573,6 @@ Game_GrowthEquip.prototype.displayLevelUp = function (item, level, newSkills) {
 };
 
 Game_GrowthEquip.prototype.setAllItemParams = function () {
-    console.log(this._growthEquipInfos);
     this._growthEquipInfos.forEach((growthEquipInfo) => {
         this.setItemParams(growthEquipInfo);
     });
@@ -780,6 +899,12 @@ Game_GrowthEquip.prototype.levelUpMsg = function () {
     //-----------------------------------------------------------------------------
     // BattleManager
     //-----------------------------------------------------------------------------
+    const _BattleManager_Setup = BattleManager.setup;
+    BattleManager.setup = function (troopId, canEscape, canLose) {
+        _BattleManager_Setup.apply(this, arguments);
+        GrowthEquipManager.setup();
+    };
+
     const _BattleManager_GainRewards = BattleManager.gainRewards;
     BattleManager.gainRewards = function () {
         _BattleManager_GainRewards.apply(this, arguments);
