@@ -97,6 +97,13 @@ https://raw.githubusercontent.com/basuka/RPGMZ/main/GrowthEquip/GrowthEquip.js</
 </br>
 </br>
 
+<B>獲得装備経験値取得(スクリプト)</B></br>
+
+「GrowthEquipManager.gainExp()」関数から獲得装備経験値の取得を行うことができます。</br>
+
+</br>
+</br>
+
 <B>レベルアップ情報取得(スクリプト)</B></br>
 
 「GrowthEquipManager.increaseParam(actor)」関数から以下の情報の取得を行うことができます。</br>
