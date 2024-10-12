@@ -113,6 +113,10 @@
  * %3：成長装備のレベル
  *
  *
+ * ■獲得装備経験値取得(スクリプト)
+ * GrowthEquipManager.gainExp()関数からレベルアップ情報の取得を行うことができます。
+ *
+ *
  * ■レベルアップ情報取得(スクリプト)
  * GrowthEquipManager.increaseParam(actor)関数からレベルアップ情報の取得を行うことができます。
  * 取得できる情報は以下の情報となります。
@@ -156,8 +160,9 @@
  * 2024/9/26 Ver.1.0.0　公開
  * 2024/9/27 Ver.1.0.1　必要経験値の上限を設定するよう修正
  *                      装備レベルが最大時に不要な経験値が加算されないよう修正
- * 2024/9/28 Ver.1.0.2  獲得経験値の小数点以下を丸めるよう修正
+ * 2024/9/28 Ver.1.0.2  獲得装備経験値の小数点以下を丸めるよう修正
  * 2024/10/12 Ver.1.0.3　レベルアップ情報を取得する関数を実装
+ *                     　獲得装備経験値を取得する関数を実装
  *
  *=====================================================================================================================================================
  * @param growthWeaponInfos
@@ -376,6 +381,10 @@ GrowthEquipManager.setup = function () {
 
 GrowthEquipManager.setGainExp = function (gainExp) {
     this._gainExp = gainExp;
+};
+
+GrowthEquipManager.gainExp = function () {
+    return this._gainExp;
 };
 
 GrowthEquipManager.addLevel = function (growthEquipInfo) {
