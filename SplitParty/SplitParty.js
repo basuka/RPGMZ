@@ -108,6 +108,8 @@
  *                      分割パーティー編成時に必須アクターを設定できるよう機能を追加
  *                      必須アクターを指定パーティーに固定できるよう機能を追加
  *                      分割パーティー終了時のパーティー編成で編成から除外するアクターを設定できるよう機能を追加
+ * 2024/11/29 Ver.2.0.1 初期画面でインポートした素材(歩行/顔グラフィック)が表示されない問題を修正
+ *                      分割パーティー終了時のパーティー編成で必須アクターを設定できるよう機能を追加
  *
  *
  *=====================================================================================================================================================
@@ -190,6 +192,12 @@
  * @text 除外アクターID
  * @type actor[]
  * @desc 通常メンバー編成から除外するアクターを設定
+ *
+ * @arg requiredMemberList
+ * @text 必須メンバー
+ * @type actor[]
+ * @desc 必須メンバーを設定
+ *       ここで設定されたアクターはメンバーから外せなくなります
  *
  */
 
@@ -640,6 +648,7 @@ Game_SplitParty.prototype.clear = function () {
         this._partyPos4 = {};
 
         this._backMember = false;
+        this._requiredMemberList = [];
     };
 
     SplitParty.prototype.setup = function () {
@@ -658,6 +667,7 @@ Game_SplitParty.prototype.clear = function () {
 
     SplitParty.prototype.setEndParams = function (splitPartyParams) {
         this._backMember = splitPartyParams.backMember;
+        this._requiredMemberList = splitPartyParams.requiredMemberList;
     };
 
     SplitParty.prototype.cancelSwitchId = function () {
@@ -704,6 +714,10 @@ Game_SplitParty.prototype.clear = function () {
         return this._backMember;
     };
 
+    SplitParty.prototype.requiredMemberList = function () {
+        return this._requiredMemberList;
+    };
+
     SplitParty.prototype.memberList = function () {
         let actorList = [];
         const allActorIdList = $gameSplitParty.allActorIdList();
@@ -712,6 +726,15 @@ Game_SplitParty.prototype.clear = function () {
                 const actor = $gameActors.actor(actorId);
                 actorList.push(actor);
             });
+
+            if (this._requiredMemberList.length > 0) {
+                this._requiredMemberList.forEach((actorId) => {
+                    if (!actorList.some((actor) => actor.actorId() === actorId)) {
+                        const actor = $gameActors.actor(actorId);
+                        actorList.push(actor);
+                    }
+                });
+            }
         } else {
             actorList = this.setMemberList();
         }
@@ -825,6 +848,8 @@ Game_SplitParty.prototype.clear = function () {
         this._setMemberEndCommandWindow.hide();
         this._setMemberEndCommandWindow.deactivate();
         this._selectMemberStatusWindow.setActor(this._selectMemberWindow.item());
+
+        this.setRequiredMember();
     };
 
     Scene_EndSplitParty.prototype.createSelectPartyWindow = function () {
@@ -880,18 +905,33 @@ Game_SplitParty.prototype.clear = function () {
 
     Scene_EndSplitParty.prototype.setSelectActor = function () {
         const item = this._selectMemberWindow.item();
-
-        if (this._selectPartyWindow.isAddItem(item)) {
-            this._selectPartyWindow.removeItem(item);
-            this._selectMemberWindow.removeActor(item);
+        const requiredMemberList = $splitParty.requiredMemberList();
+        if (requiredMemberList.includes(item.actorId())) {
+            SoundManager.playBuzzer();
         } else {
-            if (this._selectPartyWindow.isMaxMember()) {
-                SoundManager.playBuzzer();
+            if (this._selectPartyWindow.isAddItem(item)) {
+                this._selectPartyWindow.removeItem(item);
+                this._selectMemberWindow.removeActor(item);
             } else {
-                this._selectPartyWindow.addItem(item);
-                this._selectMemberWindow.addActor(item);
+                if (this._selectPartyWindow.isMaxMember()) {
+                    SoundManager.playBuzzer();
+                } else {
+                    this._selectPartyWindow.addItem(item);
+                    this._selectMemberWindow.addActor(item);
+                }
             }
+
+            this._selectPartyWindow.refresh();
+            this._selectMemberWindow.refresh();
         }
+    };
+
+    Scene_EndSplitParty.prototype.setRequiredMember = function () {
+        $splitParty.requiredMemberList().forEach((actorId) => {
+            const actor = $gameActors.actor(actorId);
+            this._selectPartyWindow.addItem(actor);
+            this._selectMemberWindow.addActor(actor);
+        });
 
         this._selectPartyWindow.refresh();
         this._selectMemberWindow.refresh();
@@ -1509,6 +1549,12 @@ Game_SplitParty.prototype.clear = function () {
         this.activate();
     };
 
+    Window_SelectMemberStatus.prototype.loadFaceImages = function () {
+        for (const actor of $splitParty.memberList()) {
+            ImageManager.loadFace(actor.faceName());
+        }
+    };
+
     Window_SelectMemberStatus.prototype.setActor = function (actor) {
         if (this._actor !== actor) {
             this._actor = actor;
@@ -1566,6 +1612,7 @@ Game_SplitParty.prototype.clear = function () {
         Window_Selectable.prototype.initialize.call(this, rect);
         this._data = [];
         this._setActorList = [];
+        this.refresh();
     };
 
     Window_SelectMember.prototype.setStatusWindow = function (selectMemberStatusWindow) {
