@@ -937,14 +937,18 @@ Game_SplitParty.prototype.clear = function () {
     };
 
     Scene_EndSplitParty.prototype.setRequiredMember = function () {
-        $splitParty.requiredMemberList().forEach((actorId) => {
-            const actor = $gameActors.actor(actorId);
-            this._selectPartyWindow.addItem(actor);
-            this._selectMemberWindow.addActor(actor);
-        });
+        const requiredMemberList = $splitParty.requiredMemberList();
 
-        this._selectPartyWindow.refresh();
-        this._selectMemberWindow.refresh();
+        if (requiredMemberList) {
+            requiredMemberList.forEach((actorId) => {
+                const actor = $gameActors.actor(actorId);
+                this._selectPartyWindow.addItem(actor);
+                this._selectMemberWindow.addActor(actor);
+            });
+
+            this._selectPartyWindow.refresh();
+            this._selectMemberWindow.refresh();
+        }
     };
 
     Scene_EndSplitParty.prototype.onSetEnd = function () {
