@@ -120,6 +120,7 @@
  *                      分割パーティー終了時のパーティー編成で編成から除外するアクターを設定できるよう機能を追加
  * 2024/11/29 Ver.2.0.1 初期画面でインポートした素材(歩行/顔グラフィック)が表示されない問題を修正
  *                      分割パーティー終了時のパーティー編成で必須アクターを設定できるよう機能を追加
+ * 2025/2/24 Ver.2.0.2  イベント実行中にボタンが非表示/非活性になるよう修正
  *
  *
  *=====================================================================================================================================================
@@ -1786,6 +1787,9 @@ Game_SplitParty.prototype.clear = function () {
         $splitParty = new SplitParty();
     };
 
+    //-----------------------------------------------------------------------------
+    // DataManager
+    //-----------------------------------------------------------------------------
     const _DataManager_CreateGameObjects = DataManager.createGameObjects;
     DataManager.createGameObjects = function () {
         _DataManager_CreateGameObjects.apply(this, arguments);
@@ -1805,30 +1809,9 @@ Game_SplitParty.prototype.clear = function () {
         $gameSplitParty = contents.gameSplitParty;
     };
 
-    const _Scene_Map_OnTransferEnd = Scene_Map.prototype.onTransferEnd;
-    Scene_Map.prototype.onTransferEnd = function () {
-        _Scene_Map_OnTransferEnd.apply(this, arguments);
-        if ($gameSplitParty.isSplitParty() && $gameSplitParty.isChange()) {
-            $gameSplitParty.setGameParty();
-        }
-    };
-
-    const _Scene_Map_IsAnyButtonPressed = Scene_Map.prototype.isAnyButtonPressed;
-    Scene_Map.prototype.isAnyButtonPressed = function () {
-        return _Scene_Map_IsAnyButtonPressed.apply(this, arguments) || (this._pageupButton && this._pageupButton.isPressed()) || (this._pagedownButton && this._pagedownButton.isPressed());
-    };
-
-    const _Scene_Map_CreateButtons = Scene_Map.prototype.createButtons;
-    Scene_Map.prototype.createButtons = function () {
-        _Scene_Map_CreateButtons.apply(this, arguments);
-
-        if (ConfigManager.touchUI) {
-            if ($gameSplitParty.needsMapPageButtons() && $splitParty.setupMapId() !== $gameMap.mapId()) {
-                this.createPageButtons();
-            }
-        }
-    };
-
+    //-----------------------------------------------------------------------------
+    // Game_Map
+    //-----------------------------------------------------------------------------
     const _Game_Map_RefreshTileEvents = Game_Map.prototype.refreshTileEvents;
     Game_Map.prototype.refreshTileEvents = function () {
         if ($gameSplitParty.isSplitParty() && $splitParty.setupMapId() !== this._mapId) {
@@ -1857,6 +1840,9 @@ Game_SplitParty.prototype.clear = function () {
         }
     };
 
+    //-----------------------------------------------------------------------------
+    // Game_Event
+    //-----------------------------------------------------------------------------
     const _Game_Event_Event = Game_Event.prototype.event;
     Game_Event.prototype.event = function () {
         if ($gameSplitParty.isSplitParty() && $gameSplitParty.baseDumyId() > 0 && this._eventId > $gameSplitParty.baseDumyId()) {
@@ -1873,6 +1859,9 @@ Game_SplitParty.prototype.clear = function () {
         }
     };
 
+    //-----------------------------------------------------------------------------
+    // Game_Player
+    //-----------------------------------------------------------------------------
     const _Game_Player_ReserveTransfer = Game_Player.prototype.reserveTransfer;
     Game_Player.prototype.reserveTransfer = function (mapId, x, y, d, fadeType) {
         _Game_Player_ReserveTransfer.apply(this, arguments);
@@ -1886,6 +1875,40 @@ Game_SplitParty.prototype.clear = function () {
         _Game_Player_IncreaseSteps.apply(this, arguments);
         if ($gameSplitParty.isSplitParty() && this.isNormal()) {
             $splitParty.checkPos();
+        }
+    };
+
+    //-----------------------------------------------------------------------------
+    // Scene_Map
+    //-----------------------------------------------------------------------------
+    const _Scene_Map_Initialize = Scene_Map.prototype.initialize;
+    Scene_Map.prototype.initialize = function () {
+        _Scene_Map_Initialize.apply(this, arguments);
+        this._changePartyEnabled = false;
+    };
+
+    const _Scene_Map_OnTransferEnd = Scene_Map.prototype.onTransferEnd;
+    Scene_Map.prototype.onTransferEnd = function () {
+        _Scene_Map_OnTransferEnd.apply(this, arguments);
+        if ($gameSplitParty.isSplitParty() && $gameSplitParty.isChange()) {
+            $gameSplitParty.setGameParty();
+        }
+    };
+
+    const _Scene_Map_IsAnyButtonPressed = Scene_Map.prototype.isAnyButtonPressed;
+    Scene_Map.prototype.isAnyButtonPressed = function () {
+        return _Scene_Map_IsAnyButtonPressed.apply(this, arguments) || (this._pageupButton && this._pageupButton.isPressed()) || (this._pagedownButton && this._pagedownButton.isPressed());
+    };
+
+    const _Scene_Map_CreateButtons = Scene_Map.prototype.createButtons;
+    Scene_Map.prototype.createButtons = function () {
+        _Scene_Map_CreateButtons.apply(this, arguments);
+
+        if (ConfigManager.touchUI) {
+            if ($gameSplitParty.needsMapPageButtons() && $splitParty.setupMapId() !== $gameMap.mapId()) {
+                this.createPageButtons();
+                this._changePartyEnabled = true;
+            }
         }
     };
 
@@ -1920,6 +1943,40 @@ Game_SplitParty.prototype.clear = function () {
             }
         }
         return _Scene_Map_IsReady.apply(this, arguments);
+    };
+
+    const _Scene_Map_Terminate = Scene_Map.prototype.terminate;
+    Scene_Map.prototype.terminate = function () {
+        _Scene_Map_Terminate.apply(this, arguments);
+        if (!SceneManager.isNextScene(Scene_Battle)) {
+            this.hideChangePartyButton();
+        }
+    };
+
+    const _Scene_Map_Update = Scene_Map.prototype.update;
+    Scene_Map.prototype.update = function () {
+        _Scene_Map_Update.apply(this, arguments);
+        this.updateChangePartyButton();
+    };
+
+    Scene_Map.prototype.updateChangePartyButton = function () {
+        if (this._pageupButton && this._pagedownButton) {
+            const changePartyEnabled = this.isMenuEnabled();
+            if (changePartyEnabled === this._changePartyEnabled) {
+                this._pageupButton.visible = this._changePartyEnabled;
+                this._pagedownButton.visible = this._changePartyEnabled;
+            } else {
+                this._changePartyEnabled = changePartyEnabled;
+            }
+        }
+    };
+
+    Scene_Map.prototype.hideChangePartyButton = function () {
+        if (this._pageupButton && this._pagedownButton) {
+            this._pageupButton.visible = false;
+            this._pagedownButton.visible = false;
+            this._changePartyEnabled = false;
+        }
     };
 
     Scene_Map.prototype.isChangePartyEnabled = function () {
