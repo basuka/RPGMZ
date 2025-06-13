@@ -263,8 +263,8 @@
  *-----------------------------------------------------------------------------
  * 2024/6/10 Ver.1.0.0　公開
  * 2024/6/14 Ver.1.0.1　PageUP/PageDownキー(キーボード操作)によるアクター変更時にフリーズが発生する不具合を修正
- *
- *
+ * 2025/6/13 Ver.1.0.2　スキル習得時の消費AP処理が2回呼ばれてしまう不具合を修正
+ *                      ロードを行った際、耐性変化の情報が正常に設定されない不具合を修正
  *
  *=====================================================================================================================================================
  * @param actorAbilityList
@@ -1210,9 +1210,9 @@
             this.acquisitionSparam(item);
             this.acquisitionAtkState(item);
             this.acquisitionAddAtkTimes(item);
-        }
 
-        this.addAbility(item);
+            this.addAbility(item);
+        }
     };
 
     AbilityBoard.prototype.acquisitionElementRate = function (item) {
@@ -2759,6 +2759,7 @@
 
     Game_Actor.prototype.addAbility = function (id) {
         this._abilityList.push(id);
+        this.setAbilityParamLists(this._abilityParamLists);
     };
 
     Game_Actor.prototype.isAbility = function (id) {
