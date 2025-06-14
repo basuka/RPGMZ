@@ -265,6 +265,7 @@
  * 2024/6/14 Ver.1.0.1　PageUP/PageDownキー(キーボード操作)によるアクター変更時にフリーズが発生する不具合を修正
  * 2025/6/13 Ver.1.0.2　スキル習得時の消費AP処理が2回呼ばれてしまう不具合を修正
  *                      ロードを行った際、耐性変化の情報が正常に設定されない不具合を修正
+ * 2025/6/14 Ver.1.0.3　AP獲得アイテムが無くなった後も使用できてしまう不具合を修正
  *
  *=====================================================================================================================================================
  * @param actorAbilityList
@@ -2561,7 +2562,11 @@
     //-----------------------------------------------------------------------------
     const _Scene_ItemBase_CanUse = Scene_ItemBase.prototype.canUse;
     Scene_ItemBase.prototype.canUse = function () {
-        return _Scene_ItemBase_CanUse.apply(this, arguments) || $abilityBoard.isApItem(this.item());
+        if ($abilityBoard.isApItem(this.item())) {
+            return $gameParty.hasItem(this.item());
+        } else {
+            return _Scene_ItemBase_CanUse.apply(this, arguments);
+        }
     };
 
     const _Scene_ItemBase_ApplyItem = Scene_ItemBase.prototype.applyItem;
