@@ -2109,6 +2109,8 @@
 
         this._spriteBetLineList[lineIndex].clear();
 
+        const endId = line[line.length - 1];
+
         for (const reelId of line) {
             if (index > 0) {
                 if (judgeReelId === reelId) {
@@ -2122,6 +2124,8 @@
                         if (count < 3) {
                             count = 1;
                             judgeReelId = reelId;
+                        } else {
+                            break;
                         }
                     } else {
                         break;
